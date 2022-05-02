@@ -56,50 +56,35 @@ public class Utils {
         return result;
     }
 
-    // TODO
-    /** The bytepad(X, w) function prepends an encoding of the integer w to an input string X,
-     * then pads the result with zeros until it is a byte string whose length in bytes is a
-     * multiple of w. In general, bytepad is intended to be used on encoded strings—the byte
-     * string bytepad(encode_string(S), w) can be parsed unambiguously from its beginning,
-     * whereas bytepad does not provide
-    */
+    /**
+     * Credits goes to Professor Paulo Barreto for the course TCSS 487.
+     * This function is taken from his lecture.
+     *
+     * Prepends an encoding of the integer w to an input string X, then pads the result
+     * with zeros until it is a byte string whose length in bytes is a multiple of w.
+      * @param x input byte array to bytepad.
+     * @param w the encoding factor (the output length must be a multiple of w)
+     * @return the byte-padded byte array X with encoding factor w.
+     */
     private static byte[] bytepad(byte[] x, int w) {
         // Validity Conditions: w > 0
         assert w > 0;
 
         //1. z = left_encode(w) || X.
-//        byte[] wenc = left_encode(BigInteger.valueOf(w));
-        byte[] wenc = right_encode(BigInteger.valueOf(w));
-
-        // debug
-        System.out.println("wenc: " + Arrays.toString(wenc));
-
+        byte[] wenc = left_encode(BigInteger.valueOf(w));
         byte[] z = new byte[w * ((wenc.length + x.length + w - 1)/w)];
-        z = byteConcat(wenc, x, z);
 
-        // debug
-        System.out.println("z: " + Arrays.toString(z));
-
-//        System.arraycopy(wenc, 0, z, 0, wenc.length);
-
-        // debug
-        System.out.println("concat wenc to z: " + Arrays.toString(z));
-
-//        System.arraycopy(x, 0, z, wenc.length, x.length);
-
-        // debug
-        System.out.println("continue concat x to z: " + Arrays.toString(z));
-
-
+//        z = byteConcat(wenc, x, z);
+        System.arraycopy(wenc, 0, z, 0, wenc.length);
+        System.arraycopy(x, 0, z, wenc.length, x.length);
         //2. while len(z) mod 8 ≠ 0:
         //  z = z || 0
         //3. while (len(z)/8) mod w ≠ 0:
         //  z = z || 00000000
-
         // might not need this loop since array is prefilled with 0
-//        for (int i = wenc.length + x.length; i < z.length; i++) {
-//            z[i] = (byte) 0;
-//        }
+        for (int i = wenc.length + x.length; i < z.length; i++) {
+            z[i] = (byte) 0;
+        }
         //4. return z.
         return z;
     }
@@ -119,9 +104,9 @@ public class Utils {
 
     public static void main(String[] args) {
         // Test supporting methods
-//        byte[] input = {0,1,2,3};
-//        int encodingFactor = 8;
-//        System.out.println(Arrays.toString(bytepad(input, encodingFactor)));
+        byte[] input = {0,1,2,3};
+        int encodingFactor = 8;
+        System.out.println(Arrays.toString(bytepad(input, encodingFactor)));
 
         System.out.println("left encode: " + Arrays.toString(left_encode(new BigInteger("0"))));
         System.out.println("right encode: " + Arrays.toString(right_encode(new BigInteger("0"))));

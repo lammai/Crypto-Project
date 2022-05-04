@@ -1,58 +1,31 @@
-import javax.print.attribute.standard.PresentationDirection;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Utils {
-    /**
-     * Encodes the integer x as a byte string in a way that can be
-     * unambiguously parsed from the beginning of the string by inserting the length
-     * of the byte string before the byte string representation of x.
-     * @param x The input integer of type BigInteger.
-     * @return The left encoded byte string representation of the integer input.
-     */
-    private static byte[] left_encode(BigInteger x) {
-        //Validity Conditions: 0 ≤ x < 2^2040
-        //1. Let n be the smallest positive integer for which 2^8n > x.
-        //2. Let x_1, x_2, …, xn be the base-256 encoding of x satisfying:
-        //  x = ∑ 2^(8(n-i)) * x_i, for i = 1 to n.
-        //3. Let O_i = enc8(x_i), for i = 1 to n.
-        //4. Let O_0 = enc8(n).
-        //5. Return O = O_0 || O_1 || … || O_n−1 || O_n.
-        byte[] input = x.toByteArray();
-        byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
-        byte[] result = new byte[input.length + addBytes.length];
 
-//      Copy all from addBytes to result starting at 0
-        System.arraycopy(addBytes, 0, result, 0, addBytes.length);
-//      Copy all from input to result starting at addBytes.length
-        System.arraycopy(input, 0, result, addBytes.length, input.length);
-        return result;
+    /**
+     * Define the type of encoding
+     */
+    private enum encodeType {
+        Left,
+        Right
     }
 
     /**
-     * Encodes the integer x as a byte string in a way that can be unambiguously parsed
-     * from the end of the string by inserting the length of the byte string after the
-     * byte string representation of x.
+     * Implements the NIST left_encode and right_encode functions.
      * @param x The input integer of type BigInteger
+     * @param type The type of encoding (Left or Right).
      * @return the right encoded byte string representation of the integer input.
      */
-    private static byte[] right_encode(BigInteger x) {
-//        Validity Conditions: 0 ≤ x < 2^(2040)
-//        1. Let n be the smallest positive integer for which 2^(8n) > x.
-//        2. Let x_1, x_2,…, x_n be the base-256 encoding of x satisfying:
-//        x = ∑ 2^(8(n-i))x_i, for i = 1 to n.
-//        3. Let Oi = enc8(x_i), for i = 1 to n.
-//        4. Let O_(n+1) = enc8(n).
-//        5. Return O = O_1 || O_2 || … || O_n || O_(n+1).
+    private static byte[] encode(BigInteger x, encodeType type) {
         byte[] input = x.toByteArray();
         byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
         byte[] result = new byte[input.length + addBytes.length];
 
-//      Copy all from input to result starting at 0
-        System.arraycopy(input, 0, result, 0, input.length);
-//      Copy all from addBytes to result starting at input.length
-        System.arraycopy(addBytes, 0, result, input.length, addBytes.length);
+        if (type == encodeType.Left)
+            byteConcat(addBytes, input, result);
+        else
+            byteConcat(input, addBytes, result);
         return result;
     }
 
@@ -71,12 +44,10 @@ public class Utils {
         assert w > 0;
 
         //1. z = left_encode(w) || X.
-        byte[] wenc = left_encode(BigInteger.valueOf(w));
+        byte[] wenc = encode(BigInteger.valueOf(w), encodeType.Left);
         byte[] z = new byte[w * ((wenc.length + x.length + w - 1)/w)];
 
-//        z = byteConcat(wenc, x, z);
-        System.arraycopy(wenc, 0, z, 0, wenc.length);
-        System.arraycopy(x, 0, z, wenc.length, x.length);
+        byteConcat(wenc, x, z);
         //2. while len(z) mod 8 ≠ 0:
         //  z = z || 0
         //3. while (len(z)/8) mod w ≠ 0:
@@ -90,25 +61,39 @@ public class Utils {
     }
 
     /**
+     * Encode bit strings in a way that may be parsed unambiguously from the beginning
+     * of the string, s.
+     * @param s The string input to be encoded.
+     * @return the encoded byte array.
+     */
+    private static byte[] encode_string(String s) {
+        byte[] leftEncLength = encode(BigInteger.valueOf(s.length()), encodeType.Left);
+        byte[] result = new byte[leftEncLength.length + s.length()];
+        byteConcat(leftEncLength, s.getBytes(), result);
+        return result;
+    }
+
+    /**
      * @param a The first array to add to the result
      * @param b The second array to add to the result
      * @param result The result array of the concatenation of a and b
-     * @return Thr result array
      */
-    private static byte[] byteConcat(byte[] a, byte[] b, byte[] result) {
+    private static void byteConcat(byte[] a, byte[] b, byte[] result) {
        System.arraycopy(a, 0, result, 0, a.length);
        System.arraycopy(b, 0, result, a.length, b.length);
-
-       return result;
     }
 
     public static void main(String[] args) {
         // Test supporting methods
-        byte[] input = {0,1,2,3};
-        int encodingFactor = 8;
-        System.out.println(Arrays.toString(bytepad(input, encodingFactor)));
+//        byte[] input = {0,1,2,3};
+//        int encodingFactor = 8;
+//        System.out.println(Arrays.toString(bytepad(input, encodingFactor)));
+//
+//        System.out.println("left encode: " + Arrays.toString(encode(new BigInteger("1061246"), encodeType.Left)));
+//        System.out.println("right encode: " + Arrays.toString(encode(new BigInteger("0"), encodeType.Right)));
 
-        System.out.println("left encode: " + Arrays.toString(left_encode(new BigInteger("0"))));
-        System.out.println("right encode: " + Arrays.toString(right_encode(new BigInteger("0"))));
+        String test = "bruh what duh phuck";
+        System.out.println(Arrays.toString(encode_string(test)));
+        System.out.println(Arrays.toString(encode_string("")));
     }
 }

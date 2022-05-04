@@ -1,7 +1,7 @@
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class Utils {
+public class KMACXOF256 {
 
     /**
      * Define the type of encoding
@@ -66,10 +66,10 @@ public class Utils {
      * @param s The string input to be encoded.
      * @return the encoded byte array.
      */
-    private static byte[] encode_string(String s) {
-        byte[] leftEncLength = encode(BigInteger.valueOf(s.length()), encodeType.Left);
-        byte[] result = new byte[leftEncLength.length + s.length()];
-        byteConcat(leftEncLength, s.getBytes(), result);
+    private static byte[] encode_string(byte[] s) {
+        byte[] leftEncLength = encode(BigInteger.valueOf(s.length), encodeType.Left);
+        byte[] result = new byte[leftEncLength.length + s.length];
+        byteConcat(leftEncLength, s, result);
         return result;
     }
 
@@ -93,7 +93,7 @@ public class Utils {
 //        System.out.println("right encode: " + Arrays.toString(encode(new BigInteger("0"), encodeType.Right)));
 
         String test = "bruh what duh phuck";
-        System.out.println(Arrays.toString(encode_string(test)));
-        System.out.println(Arrays.toString(encode_string("")));
+        System.out.println(Arrays.toString(encode_string(test.getBytes())));
+        System.out.println(Arrays.toString(encode_string("".getBytes())));
     }
 }

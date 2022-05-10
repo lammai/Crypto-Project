@@ -149,9 +149,9 @@ public class Symmetric {
     public static void main(String[] args) {
 
         // Testing Left Encode
-        System.out.println(" Left Encode (by bytes): " + Arrays.toString(left_encode(new BigInteger("0"))));
         byte[] left = left_encode(new BigInteger("0"));
-        System.out.print(" Left Encode (by bits): ");
+        System.out.println(" Left Encode  (by bytes): " + Arrays.toString(left));
+        System.out.print(" Left Encode  (by bits): ");
         for (byte b : left) {
             System.out.print(Integer.toBinaryString(b & 255 | 256).substring(1) + " ");
         }
@@ -159,18 +159,18 @@ public class Symmetric {
         System.out.println();
 
         // Testing Right Encode
-        System.out.println("Right Encode (by bytes): " + Arrays.toString(right_encode(new BigInteger("0"))));
         byte[] right = right_encode(new BigInteger("0"));
-        System.out.print("Right Encode (by bits): ");
+        System.out.println("Right Encode  (by bytes): " + Arrays.toString(right));
+        System.out.print("Right Encode  (by bits): ");
         for (byte b : right) {
             System.out.print(Integer.toBinaryString(b & 255 | 256).substring(1) + " ");
         }
 
         System.out.println();
 
-        // Testing Encode String
-        System.out.println("Encode String (by bytes): " + Arrays.toString(encode_string("ABC")));
-        byte[] encode = encode_string("ABC");
+        // Testing Encode String -> can make the string = "A", "AB", or "ABC" for testing
+        byte[] encode = encode_string("");
+        System.out.println("Encode String (by bytes): " + Arrays.toString(encode));
         System.out.print("Encode String (by bits): ");
         for (byte b : encode) {
             System.out.print(Integer.toBinaryString(b & 255 | 256).substring(1) + " ");

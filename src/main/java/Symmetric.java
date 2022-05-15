@@ -34,9 +34,8 @@ public class Symmetric {
         byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
         byte[] output = new byte[addBytes.length + input.length];
 
-        System.arraycopy(addBytes, 0, output, 0, addBytes.length);
-        System.arraycopy(input, 0, output, addBytes.length, input.length);
-        
+        byteConcat(addBytes, input, output);
+
         return output;
     }
 
@@ -66,8 +65,7 @@ public class Symmetric {
         byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
         byte[] output = new byte[input.length + addBytes.length];
 
-        System.arraycopy(input, 0, output, 0, input.length);
-        System.arraycopy(addBytes, 0, output, input.length, addBytes.length);
+        byteConcat(input, addBytes, output);
 
         return output;
     }
@@ -96,20 +94,15 @@ public class Symmetric {
         BigInteger lenS = BigInteger.valueOf(s.length());
         assert (lenS.compareTo(BigInteger.TWO.pow(2040)) < 0);
 
-        byte[] inputLength = left_encode(BigInteger.valueOf(s.length() * 8));
-        byte[] addBytes = new byte[s.length()];
-        for (int i = 0; i < addBytes.length; i++) {
-            addBytes[i] = (byte) s.charAt(i);
-        }
+        byte[] inputLength = left_encode(BigInteger.valueOf(s.length() * 8L));
+        byte[] addBytes = s.getBytes();
         byte[] output = new byte[inputLength.length + addBytes.length];
 
-        System.arraycopy(inputLength, 0, output, 0, inputLength.length);
-        System.arraycopy(addBytes, 0, output, inputLength.length, addBytes.length);
+        byteConcat(inputLength, addBytes, output);
 
         return output;
     }
 
-    
     /**
      * The bytepad(X, w) function prepends an encoding of the integer w to an input string
      * X, then pads the result with zeros until it is a byte string whose length in bytes
@@ -136,14 +129,25 @@ public class Symmetric {
         byte[] wenc = left_encode(BigInteger.valueOf(w));
         byte[] z = new byte[w * ((wenc.length + X.length + w - 1) / w)];
 
-        System.arraycopy(wenc, 0, z, 0, wenc.length);
-        System.arraycopy(X, 0, z, wenc.length, X.length);
+        byteConcat(wenc, X, z);
 
         for (int i = wenc.length + X.length; i < z.length; i++) {
             z[i] = (byte) 0;
         }
 
         return z;
+    }
+
+    /**
+     * Concatenate two byte arrays.
+     *
+     * @param a The first array to add to the result
+     * @param b The second array to add to the result
+     * @param result The result array of the concatenation of a and b
+     */
+    private static void byteConcat(byte[] a, byte[] b, byte[] result) {
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
     }
 
     public static void main(String[] args) {

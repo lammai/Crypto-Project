@@ -11,6 +11,32 @@ public class KMACXOF256 {
         Right
     }
 
+
+    /**
+     * Define the type of encoding
+     *
+     * @param X is the main input bit string. It may be of any length, including zero.
+     *
+     * @param L is an integer representing the requested output length, in bits.
+     *
+     * @param S is a customization bit string. The user selects this string to define a variant of the306
+     * function. When no customization is desired, S is set to the empty string
+     *
+     * @param N is a function-name bit string, used by NIST to define functions based on cSHAKE.308
+     * When no function other than cSHAKE is desired, N is set to the empty string.
+     *
+     * @return the right encoded byte string representation of the integer input.
+     */
+    /*
+    private static byte[] cSHAKE256(byte[] X, int L, byte[] S, byte[] N){
+        if(S = "" && N = "")
+            return SHAKE256(X, L);
+        else
+            return KECCAK[512](bytepad(encode_string(S) || encode_string(N), 136) || X || 00, L);
+    }
+    */
+
+
     /**
      * Implements the NIST left_encode and right_encode functions.
      * @param x The input integer of type BigInteger
@@ -95,5 +121,9 @@ public class KMACXOF256 {
         String test = "bruh what duh phuck";
         System.out.println(Arrays.toString(encode_string(test.getBytes())));
         System.out.println(Arrays.toString(encode_string("".getBytes())));
+
     }
+
+
+
 }

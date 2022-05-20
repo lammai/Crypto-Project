@@ -9,7 +9,22 @@ import java.util.stream.Stream;
 
 public class Symmetric {
 
-    private static final BigInteger[] RC = new BigInteger[24];
+    public static byte[] cSHAKE256(byte[] inX, int lenL, String funcN, String customS) {
+        if (funcN.equals("") && customS.equals("")) return SHAKE256(inX, lenL);
+
+        byte[] processIn = byteConcat(encode_string(funcN), encode_string(customS));
+        processIn = byteConcat(bytepad(processIn, 136), inX);
+        processIn = byteConcat(processIn, new byte[] {0x04});
+
+        return sponge(processIn, lenL, 512);
+    }
+
+    public static byte[] SHAKE256(byte[] in, int len) {
+        byte[] newIn = Arrays.copyOf(in, in.length + 1);
+        int bytesToPad = 136 - in.length % (136);
+        newIn[in.length] = bytesToPad == 1 ? (byte) 0x9f : 0x1f;
+        return sponge(newIn, len, 512);
+    }
 
     private static final long[] rConst = {
             0x0000000000000001L, 0x0000000000008082L, 0x800000000000808aL,
@@ -33,8 +48,10 @@ public class Symmetric {
     };
 
     private static BigInteger rotLeft64(BigInteger x, int offset) {
+        long newX = x.longValue();
         int ofs = offset % 64;
-        return (x.shiftLeft(ofs)).or(x.shiftRight(Long.SIZE - ofs));
+        return BigInteger.valueOf(newX << ofs | (newX >>> (Long.SIZE - ofs)));
+//        return (x.shiftLeft(ofs)).or(x.shiftRight(Long.SIZE - ofs));
     }
 
     private static int floorLog(int n) {
@@ -52,11 +69,6 @@ public class Symmetric {
     // --------------------------------------------------------------------------------------
 
     private static byte[] sponge(byte[] in, int bitLen, int cap) {
-        // init round constant
-        for (int i = 0; i < 24; i++) {
-            RC[i] = new BigInteger(String.valueOf(rConst[i]), 16);
-        }
-
         int rate = 1600 - cap;
         byte[] pad = in.length % (rate / 8) == 0 ? in : padTenOne(rate, in);
         BigInteger[][] states = byteArrToStates(pad, cap);
@@ -81,8 +93,9 @@ public class Symmetric {
 
     private static BigInteger[] xorStates(BigInteger[] s1, BigInteger[] s2) {
         BigInteger[] result = Stream.generate(() -> BigInteger.ZERO).limit(25).toArray(BigInteger[]::new);
-        for (int i = 0 ; i < s1.length; i++)
+        for (int i = 0 ; i < s1.length; i++) {
             result[i] = s1[i].xor(s2[i]);
+        }
         return result;
     }
 
@@ -90,7 +103,7 @@ public class Symmetric {
         BigInteger[][] states = new BigInteger[(in.length * 8)/(1600 - cap)][25];
         int offset = 0;
         for (int i = 0; i < states.length; i++) {
-            BigInteger[] state = new BigInteger[25];
+            BigInteger[] state = Stream.generate(() -> BigInteger.ZERO).limit(25).toArray(BigInteger[]::new);
             for (int j = 0; j < (1600 - cap)/64; j++) {
                 state[j] = bytesToWord(offset, in);
                 offset += 8;
@@ -155,12 +168,9 @@ public class Symmetric {
     private static BigInteger[] keccakp(BigInteger[] stateIn, int bitLen, int rounds) {
         BigInteger[] stateOut = stateIn.clone();
         int l = floorLog(bitLen/25);
-//        endian_Convert(stateOut);
         for (int i = 12 + 2*l - rounds; i < 12 + 2*l; i++) {
-            // TODO: Something wrong here idk
             stateOut = iota(chi(rhoPhi(theta(stateOut))), i);
         }
-//        endian_Convert(stateOut);
         return stateOut;
     }
 
@@ -212,8 +222,7 @@ public class Symmetric {
     }
 
     private static BigInteger[] iota(BigInteger[] stateIn, int round) {
-//        stateIn[0] = stateIn[0].xor(BigInteger.valueOf(rConst[round]));
-        stateIn[0] = stateIn[0].xor(RC[round]);
+        stateIn[0] = stateIn[0].xor(BigInteger.valueOf(rConst[round]));
         return stateIn;
     }
 
@@ -255,13 +264,20 @@ public class Symmetric {
         assert (x.compareTo(BigInteger.ZERO) >= 0);
         assert (x.compareTo(BigInteger.TWO.pow(2040)) < 0);
 
-        byte[] input = x.toByteArray();
-        byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
-        byte[] output = new byte[addBytes.length + input.length];
+        if (x.compareTo(BigInteger.ZERO) == 0) return new byte[] {1, 0};
 
-        byteConcat(addBytes, input, output);
-
-        return output;
+        byte[] buffer = new byte[8];
+        long lenCopy = x.longValue();
+        int count = 0;
+        while (lenCopy > 0) {
+            byte b = (byte) (lenCopy & 0xffL);
+            lenCopy = lenCopy >>> (8);
+            buffer[7 - count++] = b;
+        }
+        byte[] result = new byte[count + 1];
+        System.arraycopy(buffer, 8 - count, result, 1, count);
+        result[0] = (byte) count;
+        return result;
     }
 
     /**
@@ -286,13 +302,20 @@ public class Symmetric {
         assert (x.compareTo(BigInteger.ZERO) >= 0);
         assert (x.compareTo(BigInteger.TWO.pow(2040)) < 0);
 
-        byte[] input = x.toByteArray();
-        byte[] addBytes = BigInteger.valueOf(input.length).toByteArray();
-        byte[] output = new byte[input.length + addBytes.length];
+        if (x.compareTo(BigInteger.ZERO) == 0) return new byte[] {0, 1};
 
-        byteConcat(input, addBytes, output);
-
-        return output;
+        byte[] buffer = new byte[8];
+        long lenCopy = x.longValue();
+        int count = 0;
+        while (lenCopy > 0) {
+            byte b = (byte) (lenCopy & 0xffL);
+            lenCopy = lenCopy >>> (8);
+            buffer[7 - count++] = b;
+        }
+        byte[] result = new byte[count + 1];
+        System.arraycopy(buffer, 8 - count, result, 0, count);
+        result[result.length - 1] = (byte) count;
+        return result;
     }
 
     /**
@@ -321,11 +344,8 @@ public class Symmetric {
 
         byte[] inputLength = left_encode(BigInteger.valueOf(s.length() * 8L));
         byte[] addBytes = s.getBytes();
-        byte[] output = new byte[inputLength.length + addBytes.length];
 
-        byteConcat(inputLength, addBytes, output);
-
-        return output;
+        return byteConcat(inputLength,addBytes);
     }
 
     /**
@@ -354,10 +374,11 @@ public class Symmetric {
         byte[] wenc = left_encode(BigInteger.valueOf(w));
         byte[] z = new byte[w * ((wenc.length + X.length + w - 1) / w)];
 
-        byteConcat(wenc, X, z);
+        System.arraycopy(wenc, 0, z, 0, wenc.length);
+        System.arraycopy(X, 0, z, wenc.length, X.length);
 
         for (int i = wenc.length + X.length; i < z.length; i++) {
-            z[i] = (byte) 0;
+            z[i] = (byte)0;
         }
 
         return z;
@@ -368,11 +389,19 @@ public class Symmetric {
      *
      * @param a The first array to add to the result
      * @param b The second array to add to the result
-     * @param result The result array of the concatenation of a and b
+     * @return The result array of the concatenation of a and b
      */
-    private static void byteConcat(byte[] a, byte[] b, byte[] result) {
-        System.arraycopy(a, 0, result, 0, a.length);
+    private static byte[] byteConcat(byte[] a, byte[] b) {
+        byte[] result = Arrays.copyOf(a, a.length + b.length);
         System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+
+    private static String byteToHexString(byte[] in) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : in)
+            result.append(String.format("%02X ", b));
+        return result.toString();
     }
 
     public static void main(String[] args) {
@@ -406,6 +435,7 @@ public class Symmetric {
         }
 
         System.out.println();
+        System.out.println();
 
         // Testing sponge
         byte[] test = {24, 1, 2, 3,7,5,43,3,2,5,5,6,3,2,2,3,4};
@@ -413,7 +443,23 @@ public class Symmetric {
         System.out.println(Arrays.toString(sponge(test, 128, 0)));
         System.out.println("Expected: ");
         System.out.println("[-64, -101, 23, 67, -113, -72, -62, 71, -72, -72, 5, 33, -108, 28, 90, 126]");
+        System.out.println();
 
+        // Testing SHAKE256
+        byte[] shakeOut = SHAKE256(test, 512);
+        System.out.println("SHAKE RESULT:");
+        System.out.println(Arrays.toString(shakeOut));
+        System.out.println("EXPECTED:");
+        System.out.println("[-49, 27, -48, -99, -63, 122, -91, 126, -95, -54, -12, 44, 95, 37, -100, 19, -74, -65, -75, -7, -52, -10, -42, 107, -42, -75, -24, -37, -99, -78, 12, -49, 1, 94, -20, 95, -84, -33, 21, 12, 51, -6, 13, 27, 115, 84, 110, 9, 70, 81, -98, 123, -18, 31, 1, -49, -94, -93, 86, 94, 113, 8, -64, 50]");
+        System.out.println();
+
+        // Testing cSHAKE256
+        byte[] testVector = {0,1,2,3};
+        byte[] cShakeResult = cSHAKE256(testVector, 512, "", "Email Signature");
+        System.out.println("cSHAKE RESULT:");
+        System.out.println(byteToHexString(cShakeResult));
+        System.out.println("EXPECTED (cSHAKE Sample #3):");
+        System.out.println("D0 08 82 8E 2B 80 AC 9D 22 18 FF EE 1D 07 0C 48 B8 E4 C8 7B FF 32 C9 69 9D 5B 68 96 EE E0 ED D1 64 02 0E 2B E0 56 08 58 D9 C0 0C 03 7E 34 A9 69 37 C5 61 A7 4C 41 2B B4 C7 46 46 95 27 28 1C 8C");
         System.out.println();
     }
 }

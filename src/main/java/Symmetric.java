@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -8,6 +9,12 @@ import java.util.stream.Stream;
  */
 
 public class Symmetric {
+
+    public static byte[] KMACXOF256(String key, byte[] authM, int outBitLen, String divS) {
+        byte[] newIn = byteConcat(bytepad(encode_string(key), 136), authM);
+        newIn = byteConcat(newIn, right_encode(BigInteger.ZERO));
+        return cSHAKE256(newIn, outBitLen, "KMAC", divS);
+    }
 
     public static byte[] cSHAKE256(byte[] inX, int lenL, String funcN, String customS) {
         if (funcN.equals("") && customS.equals("")) return SHAKE256(inX, lenL);
@@ -26,6 +33,7 @@ public class Symmetric {
         return sponge(newIn, len, 512);
     }
 
+    // ---------------------------KECCAK CONSTANTS-------------------------------
     private static final long[] rConst = {
             0x0000000000000001L, 0x0000000000008082L, 0x800000000000808aL,
             0x8000000080008000L, 0x000000000000808BL, 0x0000000080000001L,
@@ -46,23 +54,7 @@ public class Symmetric {
             10, 7,  11, 17, 18, 3, 5, 16, 8,  21, 24, 4,
             15, 23, 19, 13, 12, 2, 20, 14, 22, 9,  6,  1
     };
-
-    private static BigInteger rotLeft64(BigInteger x, int offset) {
-        long newX = x.longValue();
-        int ofs = offset % 64;
-        return BigInteger.valueOf(newX << ofs | (newX >>> (Long.SIZE - ofs)));
-//        return (x.shiftLeft(ofs)).or(x.shiftRight(Long.SIZE - ofs));
-    }
-
-    private static int floorLog(int n) {
-        if (n < 0) throw new IllegalArgumentException("Log undefined for negative number");
-        int exp = -1;
-        while (n > 0) {
-            n = n >>> 1;
-            exp++;
-        }
-        return exp;
-    }
+    // ---------------------------END KECCAK CONSTANTS-------------------------------
 
 
     // --------------------------------SPONGE------------------------------------------
@@ -226,18 +218,21 @@ public class Symmetric {
         return stateIn;
     }
 
-    private static void endian_Convert(BigInteger[] stateIn) {
-        for (int i = 0; i < 25; i++) {
-            byte[] current = stateIn[i].toByteArray();
-            byte[] rev = new byte[current.length];
-
-            for (int x = 0; x < current.length; x++) {
-                rev[x] = current[current.length - x - 1];
-            }
-            stateIn[i] = new BigInteger(rev);
-        }
+    private static BigInteger rotLeft64(BigInteger x, int offset) {
+        long newX = x.longValue();
+        int ofs = offset % 64;
+        return BigInteger.valueOf(newX << ofs | (newX >>> (Long.SIZE - ofs)));
     }
 
+    private static int floorLog(int n) {
+        if (n < 0) throw new IllegalArgumentException("Log undefined for negative number");
+        int exp = -1;
+        while (n > 0) {
+            n = n >>> 1;
+            exp++;
+        }
+        return exp;
+    }
 
     // ---------------------------Supporting methods below-----------------------------------
     // --------------------------------------------------------------------------------------
@@ -404,6 +399,10 @@ public class Symmetric {
         return result.toString();
     }
 
+    private static String byteArrayToString(byte[] in) {
+        return new String(in, StandardCharsets.UTF_8);
+    }
+
     public static void main(String[] args) {
 
         // Testing Left Encode
@@ -460,6 +459,16 @@ public class Symmetric {
         System.out.println(byteToHexString(cShakeResult));
         System.out.println("EXPECTED (cSHAKE Sample #3):");
         System.out.println("D0 08 82 8E 2B 80 AC 9D 22 18 FF EE 1D 07 0C 48 B8 E4 C8 7B FF 32 C9 69 9D 5B 68 96 EE E0 ED D1 64 02 0E 2B E0 56 08 58 D9 C0 0C 03 7E 34 A9 69 37 C5 61 A7 4C 41 2B B4 C7 46 46 95 27 28 1C 8C");
+        System.out.println();
+
+        // Testing KMACXOF256
+        System.out.println("KMACXOF256 Result:");
+        System.out.println(byteToHexString(KMACXOF256(byteArrayToString(test), testVector, 512, "Email Signature")));
+        System.out.println("EXPECTED:");
+        byte[] expectedKMAC = new byte[] {
+                97, 80, 103, 12, 119, -34, -51, 98, -122, 0, -108, 100, -114, 25, 86, 64, 38, -17, -61, 84, -112, -118, 61, 100, 45, 52, 60, -120, 114, 58, 99, -18, -28, -95, -75, 84, -79, 84, -74, 44, -68, -47, -12, 69, 15, 94, -1, 42, 109, 100, 113, 74, 0, -83, -36, 88, -116, 111, 38, -28, -92, -39, 86, -108
+        };
+        System.out.println(byteToHexString(expectedKMAC));
         System.out.println();
     }
 }

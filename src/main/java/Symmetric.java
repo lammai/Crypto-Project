@@ -1,5 +1,6 @@
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -9,6 +10,80 @@ import java.util.stream.Stream;
  */
 
 public class Symmetric {
+
+    public static byte[] computeHash(byte[] m) {
+        return KMACXOF256("", m, 512, "D");
+    }
+
+    public static byte[] computeAuthTag(String pw, byte[] m) {
+        return KMACXOF256(pw, m, 512, "T");
+    }
+
+    public static byte[] symmetricEncrypt(String pw, byte[] m) {
+        //z <- Random(512)
+        SecureRandom random = new SecureRandom();
+        byte[] z = new byte[64]; // 512 bits
+        byte[] pwBytes = pw.getBytes();
+
+        // (ke || ka) <- KMACXOF256(z || pw, "", 1024, "S")
+        byte[] keyGen = KMACXOF256(byteArrayToString(byteConcat(z, pwBytes)), new byte[]{}, 1024, "S");
+        byte[] ke = Arrays.copyOfRange(keyGen, 0, 64);
+        byte[] ka = Arrays.copyOfRange(keyGen, 64, 128);
+
+        // c <- KMACXOF256(ke, "", |m|, "SKE") xor m
+        byte[] toXor = KMACXOF256(byteArrayToString(ke), new byte[]{}, m.length * 8, "SKE");
+        byte[] c = xorBytes(toXor, m);
+
+        // t <- KMACXOF256(ka, m, 512, "SKA")
+        byte[] t = KMACXOF256(byteArrayToString(ka), m, 512, "SKA");
+
+        // symmetric cryptogram (z, c, t)
+        // (z || c || t)
+        return byteConcat(byteConcat(z, c), t);
+    }
+
+    public static byte[] symmetricDecrypt(String pw, byte[] zct) {
+        // Taking z, c, t apart
+        byte[] z = Arrays.copyOfRange(zct, 0 ,64);
+        byte[] c = Arrays.copyOfRange(zct, 64, zct.length - 64);
+        byte[] t = Arrays.copyOfRange(zct, zct.length - 64, zct.length);
+
+        // (ke || ka) <- KMACXOF256(z || pw, “”, 1024, “S”)
+        byte[] keyGen = KMACXOF256(byteArrayToString(byteConcat(z, pw.getBytes())), new byte[]{}, 1024, "S");
+        byte[] ke = Arrays.copyOfRange(keyGen, 0, 64);
+        byte[] ka = Arrays.copyOfRange(keyGen, 64, 128);
+
+        // m <- KMACXOF256(ke, “”, |c|, “SKE”) xor c
+        byte[] toXor = KMACXOF256(byteArrayToString(ke), new byte[]{}, c.length, "SKE");
+        byte[] m = xorBytes(toXor, c);
+
+        // t’ <- KMACXOF256(ka, m, 512, “SKA”)
+        byte[] tPrime = KMACXOF256(byteArrayToString(ka), m, 512, "SKA");
+
+        // accept if, and only if, t’ = t
+        // if t = tPrime returns decrypted message, else return cryptogram
+        return Arrays.equals(t, tPrime) ? m : c;
+    }
+
+    // TODO
+    // This is starting to involve part 2
+    public static byte[] genSchnorrKeyPair(String pw) {
+        // s <- KMACXOF256(pw, “”, 512, “K”);
+        byte[] tempS = KMACXOF256(pw, new byte[]{}, 512, "K");
+        byte[] s = new byte[65];
+        System.arraycopy(tempS, 0, s, 1, tempS.length);
+
+        // s <- 4s
+        BigInteger sBigInt = new BigInteger(s);
+        BigInteger multFour = sBigInt.multiply(BigInteger.valueOf(4L));
+
+        // V <- s*G
+        // Note: s*G is multiplication of the scalar factor s by curve point G
+        // TODO
+
+        // key pair: (s, V)
+        return new byte[]{};
+    }
 
     public static byte[] KMACXOF256(String key, byte[] authM, int outBitLen, String divS) {
         byte[] newIn = byteConcat(bytepad(encode_string(key), 136), authM);
@@ -166,6 +241,12 @@ public class Symmetric {
         return stateOut;
     }
 
+    /**
+     * Implementation of theta following the NIST FIPS 202, section 3.2.1 specifications
+     *
+     * @param stateIn The state input array
+     * @return The processed state array
+     */
     private static BigInteger[] theta(BigInteger[] stateIn) {
         BigInteger[] stateOut = Stream.generate(() -> BigInteger.ZERO).limit(25).toArray(BigInteger[]::new);
         BigInteger[] c = Stream.generate(() -> BigInteger.ZERO).limit(5).toArray(BigInteger[]::new);
@@ -184,6 +265,13 @@ public class Symmetric {
         return stateOut;
     }
 
+    /**
+     * Implementation of rho and phi following the specification in NIST FIPS 202,
+     * section 3.2.2 and 3.2.3
+     *
+     * @param stateIn The state input array
+     * @return The processed state array
+     */
     private static BigInteger[] rhoPhi(BigInteger[] stateIn) {
         BigInteger[] stateOut = Stream.generate(() -> BigInteger.ZERO).limit(25).toArray(BigInteger[]::new);
         stateOut[0] = stateIn[0];
@@ -201,6 +289,13 @@ public class Symmetric {
         return stateOut;
     }
 
+    /**
+     * Implementation of chi following the specification in NIST FIPS 202
+     * section 3.2.4
+     *
+     * @param stateIn The state input array
+     * @return The processed state array
+     */
     private static BigInteger[] chi(BigInteger[] stateIn) {
         BigInteger[] stateOut = Stream.generate(() -> BigInteger.ZERO).limit(25).toArray(BigInteger[]::new);
 
@@ -213,6 +308,14 @@ public class Symmetric {
         return stateOut;
     }
 
+    /**
+     * Implementation of iota following the specification in NIST FIPS 202
+     * section 3.2.5
+     *
+     * @param stateIn The state input array
+     * @param round The index of round constant
+     * @return The processed state array
+     */
     private static BigInteger[] iota(BigInteger[] stateIn, int round) {
         stateIn[0] = stateIn[0].xor(BigInteger.valueOf(rConst[round]));
         return stateIn;
@@ -232,6 +335,14 @@ public class Symmetric {
             exp++;
         }
         return exp;
+    }
+
+    private static byte[] xorBytes(byte[] a, byte[] b) {
+        if (a.length != b.length) throw new IllegalArgumentException("Input arrays are not of the same length");
+        byte[] result = new byte[a.length];
+        for (int i = 0; i < a.length; i++)
+            result[i] = (byte) (a[i] ^ b[i]);
+        return result;
     }
 
     // ---------------------------Supporting methods below-----------------------------------
@@ -392,6 +503,12 @@ public class Symmetric {
         return result;
     }
 
+    /**
+     * Take a byte array and convert it into the respective Hex String
+     *
+     * @param in The byte array
+     * @return The hex result of type String
+     */
     private static String byteToHexString(byte[] in) {
         StringBuilder result = new StringBuilder();
         for (byte b : in)
@@ -399,6 +516,12 @@ public class Symmetric {
         return result.toString();
     }
 
+    /**
+     * Take a byte array and convert it into the respective String value
+     *
+     * @param in The byte array
+     * @return The input of type String
+     */
     private static String byteArrayToString(byte[] in) {
         return new String(in, StandardCharsets.UTF_8);
     }

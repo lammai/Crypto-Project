@@ -1,6 +1,10 @@
 import java.math.BigInteger;
 import java.util.Arrays;
 
+    /*
+     * KMACXOF256 PDF Slides: file:///C:/Users/shche/OneDrive%20-%20UW/UW/Spring%202022/TCSS%20487%20-%20Cryptography/Crypto%20Project/TCSS%20487%20-%20KMACXOF256.pdf
+     */
+
 public class KMACXOF256 {
 
     /**
@@ -89,6 +93,7 @@ public class KMACXOF256 {
     /**
      * Encode bit strings in a way that may be parsed unambiguously from the beginning
      * of the string, s.
+     *
      * @param s The string input to be encoded.
      * @return the encoded byte array.
      */
@@ -118,9 +123,12 @@ public class KMACXOF256 {
 //        System.out.println("left encode: " + Arrays.toString(encode(new BigInteger("1061246"), encodeType.Left)));
 //        System.out.println("right encode: " + Arrays.toString(encode(new BigInteger("0"), encodeType.Right)));
 
+        /*
         String test = "bruh what duh phuck";
         System.out.println(Arrays.toString(encode_string(test.getBytes())));
         System.out.println(Arrays.toString(encode_string("".getBytes())));
+        */
+
 
     }
 

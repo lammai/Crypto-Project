@@ -132,6 +132,4 @@ public class KMACXOF256 {
 
     }
 
-
-
 }

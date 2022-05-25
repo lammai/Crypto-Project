@@ -560,7 +560,7 @@ public class Symmetric {
         System.out.println();
 
         // Testing sponge
-        byte[] test = {24, 1, 2, 3,7,5,43,3,2,5,5,6,3,2,2,3,4};
+        byte[] test = {24, 1, 2, 3, 7, 5, 43, 3, 2, 5, 5, 6, 3, 2, 2, 3, 4};
         System.out.println("Sponge Result: ");
         System.out.println(Arrays.toString(sponge(test, 128, 0)));
         System.out.println("Expected: ");

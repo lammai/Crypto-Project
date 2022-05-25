@@ -509,7 +509,7 @@ public class Symmetric {
      * @param in The byte array
      * @return The hex result of type String
      */
-    private static String byteToHexString(byte[] in) {
+    public static String byteToHexString(byte[] in) {
         StringBuilder result = new StringBuilder();
         for (byte b : in)
             result.append(String.format("%02X ", b));
@@ -522,7 +522,7 @@ public class Symmetric {
      * @param in The byte array
      * @return The input of type String
      */
-    private static String byteArrayToString(byte[] in) {
+    public static String byteArrayToString(byte[] in) {
         return new String(in, StandardCharsets.UTF_8);
     }
 

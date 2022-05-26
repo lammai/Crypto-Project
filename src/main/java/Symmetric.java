@@ -65,26 +65,6 @@ public class Symmetric {
         return Arrays.equals(t, tPrime) ? m : c;
     }
 
-    // TODO
-    // This is starting to involve part 2
-    public static byte[] genSchnorrKeyPair(String pw) {
-        // s <- KMACXOF256(pw, “”, 512, “K”);
-        byte[] tempS = KMACXOF256(pw, new byte[]{}, 512, "K");
-        byte[] s = new byte[65];
-        System.arraycopy(tempS, 0, s, 1, tempS.length);
-
-        // s <- 4s
-        BigInteger sBigInt = new BigInteger(s);
-        BigInteger multFour = sBigInt.multiply(BigInteger.valueOf(4L));
-
-        // V <- s*G
-        // Note: s*G is multiplication of the scalar factor s by curve point G
-        // TODO
-
-        // key pair: (s, V)
-        return new byte[]{};
-    }
-
     public static byte[] KMACXOF256(String key, byte[] authM, int outBitLen, String divS) {
         byte[] newIn = byteConcat(bytepad(encode_string(key), 136), authM);
         newIn = byteConcat(newIn, right_encode(BigInteger.ZERO));

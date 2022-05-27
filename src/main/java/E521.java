@@ -17,11 +17,11 @@ public class E521 {
     /** Elliptic Y-Coordinate */
     private BigInteger Y;
     /** Elliptic curve initialization of D = -376014 */
-    private BigInteger D = new BigInteger("-376014");
+    private static final BigInteger D = new BigInteger("-376014");
     /** Finite Field defined as of Mersenne prime????  */
-    private BigInteger P = new BigInteger("2").pow(521).subtract(BigInteger.ONE);
+    public static final BigInteger P = new BigInteger("2").pow(521).subtract(BigInteger.ONE);
     /** Number of possible positions on Edwards Elliptical Curve 521 */
-    private BigInteger R = BigInteger.TWO.pow(519).subtract(new BigInteger("337554763258501705789107630418782636071904961214051226618635150085779108655765"));
+    private static final BigInteger R = BigInteger.TWO.pow(519).subtract(new BigInteger("337554763258501705789107630418782636071904961214051226618635150085779108655765"));
 
 
     // --- Constructors ---
@@ -117,6 +117,17 @@ public class E521 {
         System.arraycopy(y, 0, result, yPos, y.length);
 
         return result;
+    }
+
+    public static E521 createFromBytes(byte[] input) {
+        int bLen = P.toByteArray().length * 2;
+        if (input.length != bLen)
+            throw new IllegalArgumentException("Invalid input byte array");
+
+        BigInteger myX = new BigInteger(Arrays.copyOfRange(input, 0, bLen / 2 ));
+        BigInteger myY = new BigInteger(Arrays.copyOfRange(input, bLen / 2, bLen ));
+
+        return new E521(myX, myY);
     }
 
     // --- Support Functions ---

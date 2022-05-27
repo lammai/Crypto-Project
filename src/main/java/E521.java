@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class E521 {
 
@@ -97,6 +98,25 @@ public class E521 {
     /** Replaces E521 Y-coordinate */
     public void setY(BigInteger tempY){
         this.Y = tempY;
+    }
+
+    public byte[] getBytes() {
+        byte[] result = new byte[P.toByteArray().length * 2];
+        byte[] x = X.toByteArray();
+        byte[] y = Y.toByteArray();
+
+        int xPos = (P.toByteArray().length * 2) / 2 - x.length;
+        int yPos = result.length - y.length;
+
+        if (X.signum() < 0)
+            Arrays.fill(result, 0, xPos, (byte) 0xff);
+        if (Y.signum() < 0)
+            Arrays.fill(result, (P.toByteArray().length * 2) / 2, yPos, (byte) 0xff);
+
+        System.arraycopy(x, 0, result, xPos, x.length);
+        System.arraycopy(y, 0, result, yPos, y.length);
+
+        return result;
     }
 
     // --- Support Functions ---

@@ -317,7 +317,7 @@ public class Symmetric {
         return exp;
     }
 
-    private static byte[] xorBytes(byte[] a, byte[] b) {
+    public static byte[] xorBytes(byte[] a, byte[] b) {
         if (a.length != b.length) throw new IllegalArgumentException("Input arrays are not of the same length");
         byte[] result = new byte[a.length];
         for (int i = 0; i < a.length; i++)
@@ -477,7 +477,7 @@ public class Symmetric {
      * @param b The second array to add to the result
      * @return The result array of the concatenation of a and b
      */
-    private static byte[] byteConcat(byte[] a, byte[] b) {
+    public static byte[] byteConcat(byte[] a, byte[] b) {
         byte[] result = Arrays.copyOf(a, a.length + b.length);
         System.arraycopy(b, 0, result, a.length, b.length);
         return result;

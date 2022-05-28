@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -299,7 +300,7 @@ public class Main {
             br.close();
         }
         catch (IOException e) {
-            System.out.println("An IOException occured");
+            System.out.println("An IOException occurred");
         }
 
         buffer("symmetric", "c");
@@ -321,10 +322,9 @@ public class Main {
             String passphrase = scan.nextLine().trim();
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
-                byte[] m = line.getBytes();
-                // TODO: Different byte string length error thrown here, fix later
+                byte[] m = Symmetric.hexStringToByte(line);
                 byte[] hash = Symmetric.symmetricDecrypt(passphrase, m);
-                String output = Symmetric.byteToHexString(hash);
+                String output = Symmetric.byteArrayToString(hash);
                 listOfDecryptions.add(output);
             }
             fileReader.close();
@@ -454,26 +454,6 @@ public class Main {
         String input = scan.nextLine();
         System.out.println("Not implemented yet: Exiting program now");
     }
-
-    // private static void handleCryptHash() {
-    //     // Doing console input first for now
-    //     // TODO: compute plain cryptographic hash from file
-    //     System.out.print("Enter message to encrypt\n-> ");
-    //     String input = scan.nextLine();
-
-    //     System.out.println("Result:");
-    //     System.out.println(Symmetric.byteToHexString(Symmetric.computeHash(input.getBytes())));
-    //     System.out.println("----------------------------------------------");
-    //     System.out.println();
-    // }
-
-    // private static void handleSymmEncrypt() {
-
-    // }
-
-    // private static void handleSymmDecrypt() {
-
-    // }
 
     /**
      * Get the output directory, which is the same directory as the input file.

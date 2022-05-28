@@ -40,6 +40,7 @@ public class Symmetric {
         //z <- Random(512)
         SecureRandom random = new SecureRandom();
         byte[] z = new byte[64]; // 512 bits
+        random.nextBytes(z);
         byte[] pwBytes = pw.getBytes();
 
         // (ke || ka) <- KMACXOF256(z || pw, "", 1024, "S")
@@ -77,10 +78,7 @@ public class Symmetric {
         byte[] ka = Arrays.copyOfRange(keyGen, 64, 128);
 
         // m <- KMACXOF256(ke, “”, |c|, “SKE”) xor c
-        byte[] toXor = KMACXOF256(byteArrayToString(ke), new byte[]{}, c.length, "SKE");
-        // TODO: Remove later
-        System.out.println("toXor length: " + toXor.length);
-        System.out.println("c length: " + c.length);
+        byte[] toXor = KMACXOF256(byteArrayToString(ke), new byte[]{}, c.length * 8, "SKE");
         byte[] m = xorBytes(toXor, c);
 
         // t’ <- KMACXOF256(ka, m, 512, “SKA”)
@@ -518,8 +516,18 @@ public class Symmetric {
     public static String byteToHexString(byte[] in) {
         StringBuilder result = new StringBuilder();
         for (byte b : in)
-            result.append(String.format("%02X ", b));
+            result.append(String.format("%02X", b));
         return result.toString();
+    }
+
+    public static byte[] hexStringToByte(String hex) {
+        int length = hex.length();
+        byte[] result = new byte[length / 2];
+        for (int i = 0; i < length; i+=2) {
+            result[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                                    + Character.digit(hex.charAt(i+1), 16));
+        }
+        return result;
     }
 
     /**
@@ -599,5 +607,17 @@ public class Symmetric {
         };
         System.out.println(byteToHexString(expectedKMAC));
         System.out.println();
+
+        // Testing Encrypt
+        String input = "testing line 1";
+        String pw = "Email Signature";
+        byte[] out = symmetricEncrypt(pw, input.getBytes());
+        String hex = byteToHexString(out);
+
+        byte[] decrypt = symmetricDecrypt(pw, out);
+        System.out.println(Arrays.toString(input.getBytes()));
+        System.out.println(Arrays.toString(decrypt));
+        System.out.println(byteToHexString(decrypt));
+        System.out.println(byteArrayToString(decrypt));
     }
 }

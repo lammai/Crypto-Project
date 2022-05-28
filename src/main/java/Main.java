@@ -198,15 +198,16 @@ public class Main {
         }
     }
 
+    // ---------------------------- SYMMETRIC CRYPTOGRAHPY -------------------------------------
+
     /** a -> Compute a plain cryptographic hash of a given file */
     private static void cryptoHashFromFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to cryptographically hash:");
-
         String fileName = scan.nextLine().trim();
 
         final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
-        List<String> list = new ArrayList<>();
+        List<String> listOfHashes = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + fileName);
@@ -216,7 +217,7 @@ public class Main {
                 byte[] m = line.getBytes();
                 byte[] hash = Symmetric.computeHash(m);
                 String output = Symmetric.byteToHexString(hash);
-                list.add(output);
+                listOfHashes.add(output);
             }
             fileReader.close();
         }
@@ -226,7 +227,7 @@ public class Main {
         }
 
         System.out.println("\nResult:");
-        for (String hash : list) {
+        for (String hash : listOfHashes) {
             System.out.println(hash);
         }
 
@@ -237,8 +238,8 @@ public class Main {
     private static void cryptoHashFromInput() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a message to cryptographically hash:");
-
         String input = scan.nextLine();
+
         byte[] m = input.getBytes();
         byte[] hash = Symmetric.computeHash(m);
         String output = Symmetric.byteToHexString(hash);
@@ -253,11 +254,10 @@ public class Main {
     private static void encryptUnderPassphrase() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to encrypt under a passphrase:");
-
         String inputFileName = scan.nextLine().trim();
 
         final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
-        List<String> list = new ArrayList<>();
+        List<String> listOfEncryptions = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + inputFileName);
@@ -269,7 +269,7 @@ public class Main {
                 byte[] m = line.getBytes();
                 byte[] hash = Symmetric.symmetricEncrypt(passphrase, m);
                 String output = Symmetric.byteToHexString(hash);
-                list.add(output);
+                listOfEncryptions.add(output);
             }
             fileReader.close();
         }
@@ -293,8 +293,8 @@ public class Main {
             }
             FileWriter writer = new FileWriter(outputDirectory + file.getName());
             BufferedWriter br = new BufferedWriter(writer);
-            for (String hash : list) {
-                br.write(hash + "\n");
+            for (String encryption : listOfEncryptions) {
+                br.write(encryption + "\n");
             }
             br.close();
         }
@@ -309,11 +309,10 @@ public class Main {
     private static void decryptUnderPassphrase() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to decrypt under a passphrase:");
-
         String inputFileName = scan.nextLine().trim();
 
         final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
-        List<String> list = new ArrayList<>();
+        List<String> listOfDecryptions = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + inputFileName);
@@ -326,7 +325,7 @@ public class Main {
                 // TODO: Different byte string length error thrown here, fix later
                 byte[] hash = Symmetric.symmetricDecrypt(passphrase, m);
                 String output = Symmetric.byteToHexString(hash);
-                list.add(output);
+                listOfDecryptions.add(output);
             }
             fileReader.close();
         }
@@ -350,8 +349,8 @@ public class Main {
             }
             FileWriter writer = new FileWriter(outputDirectory + file.getName());
             BufferedWriter br = new BufferedWriter(writer);
-            for (String hash : list) {
-                br.write(hash + "\n");
+            for (String decryption : listOfDecryptions) {
+                br.write(decryption + "\n");
             }
             br.close();
         }
@@ -364,10 +363,41 @@ public class Main {
 
     /** e -> Compute an authentication tag (MAC) of a given file under a given passphrase [BONUS] */
     private static void computeMACFromFileUnderPassphrase() {
-        System.out.println("\ne -> Compute an authentication tag (MAC) of a given file under a given passphrase [BONUS]");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a file to compute an authentication tag (MAC):");
+        String fileName = scan.nextLine().trim();
+
+        final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
+        List<String> listOfAuthTags = new ArrayList<>();
+
+        try {
+            File file = new File(inputDirectory + fileName);
+            Scanner fileReader = new Scanner(file);
+            System.out.println("Enter a passphrase:");
+            String passphrase = scan.nextLine().trim();
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine();
+                byte[] m = line.getBytes();
+                byte[] hash = Symmetric.computeAuthTag(passphrase, m);
+                String output = Symmetric.byteToHexString(hash);
+                listOfAuthTags.add(output);
+            }
+            fileReader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found, try again");
+            computeMACFromFileUnderPassphrase();
+        }
+
+        System.out.println("\nResult:");
+        for (String authTag : listOfAuthTags) {
+            System.out.println(authTag);
+        }
+
+        buffer("symmetric", "e");
     }
+
+    // ---------------------------- ELLIPTIC CURVE ARITHMETIC ----------------------------------
 
     /** f -> Generate an elliptic key pair from a given passphrase and write the public key to a file */
     private static void generateKeyPairUnderPassphraseToFile() {

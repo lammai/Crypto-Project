@@ -55,6 +55,9 @@ public class Symmetric {
 
         // m <- KMACXOF256(ke, “”, |c|, “SKE”) xor c
         byte[] toXor = KMACXOF256(byteArrayToString(ke), new byte[]{}, c.length, "SKE");
+        // TODO: Remove later
+        System.out.println("toXor length: " + toXor.length);
+        System.out.println("c length: " + c.length);
         byte[] m = xorBytes(toXor, c);
 
         // t’ <- KMACXOF256(ka, m, 512, “SKA”)

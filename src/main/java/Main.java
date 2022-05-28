@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Scanner;
@@ -136,8 +137,11 @@ public class Main {
     /** a -> Compute a plain cryptographic hash of a given file */
     private static void cryptoHashFile() {
         System.out.println("\na -> Compute a plain cryptographic hash of a given file");
-        String input = scan.nextLine();
-        System.out.println("NEED TODO: Exiting program now");
+        System.out.println("Please enter the directory of the file");
+        String path = scan.nextLine();
+
+        String outPath = getOutputDirectory(path);
+
     }
 
     /** b -> Compute a plain cryptographic hash of text input [BONUS] */
@@ -244,4 +248,31 @@ public class Main {
 
     // }
 
+    /**
+     * Get the output directory, which is the same directory as the input file.
+     * The output file will have "-output" added to the name.
+     *
+     * @param fileDirectory The directory of the input file
+     * @return The directory of the output file
+     */
+    public static String getOutputDirectory(String fileDirectory) {
+        if (fileDirectory.isEmpty()) return null;
+
+        String outputDir = "", fileName;
+        try {
+            // Making this process file directory correctly for both Windows and Linux
+            if (fileDirectory.lastIndexOf("/") < 0 && fileDirectory.lastIndexOf("\\") < 0) {
+                fileName = fileDirectory.substring(0, fileDirectory.lastIndexOf(".txt"));
+                System.out.println(fileName);
+                outputDir = fileName + "-output.txt";
+            } else {
+                fileName = fileDirectory.substring(2 + fileDirectory.lastIndexOf("/") + fileDirectory.lastIndexOf("\\"), fileDirectory.lastIndexOf(".txt"));
+                int slashIndex = fileDirectory.lastIndexOf("/") > 0 ? fileDirectory.lastIndexOf("/") + 1 : fileDirectory.lastIndexOf("\\") + 1;
+                outputDir = fileDirectory.substring(0, slashIndex) + fileName + "-output.txt";
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid directory: " + e.getMessage());
+        }
+        return outputDir;
+    }
 }

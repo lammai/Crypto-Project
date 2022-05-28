@@ -3,7 +3,9 @@ import java.util.Arrays;
 
 public class Signature {
 
+    /** Is important var maybe.. */
     private static BigInteger h;
+    /** Is important var maybee.. */
     private static BigInteger z;
 
     /** Generating a signature for a byte array m under passphrase pw:

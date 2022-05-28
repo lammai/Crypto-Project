@@ -10,6 +10,10 @@ public class ECKey {
 
     private final BigInteger s_bigInt;
 
+    /**
+     * Generating a (Schnorr/ECDHIES) key pair from passphrase pw:
+     * @param pw
+     */
     public ECKey(byte[] pw) {
         // s <- KMACXOF256(pw, “”, 512, “K”);
         byte[] tempS = Symmetric.KMACXOF256(Symmetric.byteArrayToString(pw), new byte[]{}, 512, "K");
@@ -26,14 +30,18 @@ public class ECKey {
         // key pair: (s, V)
     }
 
-    public ECKey(String pw) {
-        this(pw.getBytes());
-    }
-
+    /**
+     * Encrypting a byte array m under the (Schnorr/ECDHIES) public key V:
+     * @param privateKey
+     */
     public ECKey(BigInteger privateKey) {
         s_bigInt = privateKey;
         s = s_bigInt.toByteArray();
         V = G.multiply(s_bigInt);
+    }
+
+    public ECKey(String pw) {
+        this(pw.getBytes());
     }
 
     public E521 getPublicKey() { return V; }

@@ -11,14 +11,31 @@ import java.util.stream.Stream;
 
 public class Symmetric {
 
+    /**
+     * Computing a cryptographic hash h of a byte array m:
+     * @param m
+     * @return
+     */
     public static byte[] computeHash(byte[] m) {
         return KMACXOF256("", m, 512, "D");
     }
 
+    /**
+     * Compute an authentication tag t of a byte array m under passphrase pw:
+     * @param pw
+     * @param m
+     * @return
+     */
     public static byte[] computeAuthTag(String pw, byte[] m) {
         return KMACXOF256(pw, m, 512, "T");
     }
 
+    /**
+     * Encrypting a byte array m symmetrically under passphrase pw:
+     * @param pw
+     * @param m
+     * @return
+     */
     public static byte[] symmetricEncrypt(String pw, byte[] m) {
         //z <- Random(512)
         SecureRandom random = new SecureRandom();
@@ -42,6 +59,12 @@ public class Symmetric {
         return byteConcat(byteConcat(z, c), t);
     }
 
+    /**
+     * Decrypting a symmetric cryptogram (z, c, t) under passphrase pw:
+     * @param pw
+     * @param zct
+     * @return
+     */
     public static byte[] symmetricDecrypt(String pw, byte[] zct) {
         // Taking z, c, t apart
         byte[] z = Arrays.copyOfRange(zct, 0 ,64);
@@ -113,7 +136,7 @@ public class Symmetric {
 
 
     // --------------------------------SPONGE------------------------------------------
-    // --------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
 
     private static byte[] sponge(byte[] in, int bitLen, int cap) {
         int rate = 1600 - cap;

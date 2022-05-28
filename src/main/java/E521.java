@@ -17,15 +17,20 @@ public class E521 {
     /** Elliptic Y-Coordinate */
     private BigInteger Y;
     /** Elliptic curve initialization of D = -376014 */
-    private static final BigInteger D = new BigInteger("-376014");
+    public static final BigInteger D = new BigInteger("-376014");
     /** Finite Field defined as of Mersenne prime????  */
     public static final BigInteger P = new BigInteger("2").pow(521).subtract(BigInteger.ONE);
     /** Number of possible positions on Edwards Elliptical Curve 521 */
-    private static final BigInteger R = BigInteger.TWO.pow(519).subtract(new BigInteger("337554763258501705789107630418782636071904961214051226618635150085779108655765"));
+    public static final BigInteger R = BigInteger.TWO.pow(519).subtract(new BigInteger("337554763258501705789107630418782636071904961214051226618635150085779108655765"));
 
 
     // --- Constructors ---
 
+    /**
+     * Brah
+     * @param x
+     * @param lsb
+     */
     public E521(BigInteger x, boolean lsb) {
         BigInteger upper = (BigInteger.ONE.subtract(x.pow(2))).mod(P); // 1 - x^2
         BigInteger lower = BigInteger.ONE.subtract(D.multiply(x.pow(2))).mod(P); // 1 - d * x^2
@@ -37,6 +42,10 @@ public class E521 {
         this.Y = sqrt;
     }
 
+    /**
+     * Brauhh
+     * @param point
+     */
     public E521(E521 point){
         this.X = point.getX();
         this.Y = point.getY();
@@ -52,16 +61,30 @@ public class E521 {
         this.Y = y;
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     */
     public E521(int x, int y){
         this.X = new BigInteger(x + "");
         this.Y = new BigInteger(y + "");
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     */
     public E521(String x, String y){
         this.X = new BigInteger(x);
         this.Y = new BigInteger(y);
     }
 
+    /**
+     *
+     * @param x
+     */
     public E521(BigInteger x) {
         this.X = x;
         this.Y = new BigInteger("" + x.toString(2).charAt(x.toString(2).length()-1));
@@ -273,7 +296,9 @@ public class E521 {
 //
 //		// r*G = O
 //		System.out.println("r * G = 0    ->" + g.multiply(g.getR()).equals(new E521(BigInteger.ZERO, BigInteger.ONE)));
-
+//        // Gl if you're taking this class lel
     }
 
 }
+
+

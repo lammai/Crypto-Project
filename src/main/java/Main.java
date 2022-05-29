@@ -324,7 +324,7 @@ public class Main {
                 String line = fileReader.nextLine();
                 byte[] m = Symmetric.hexStringToByte(line);
                 byte[] hash = Symmetric.symmetricDecrypt(passphrase, m);
-                String output = Symmetric.byteArrayToString(hash);
+                String output = new String(hash);
                 listOfDecryptions.add(output);
             }
             fileReader.close();

@@ -690,14 +690,12 @@ public class Main {
     /** l -> Verify a given data file and its signature file under a given public key file */
     private static void verifyUnderPublicKeyFile() {
         System.out.println("\nl -> Verify a given data file and its signature file under a given public key file");
-        String input = scan.nextLine();
         System.out.println("Not implemented yet: Exiting program now");
     }
 
     /** m -> Offer the possibility of encrypting a file under the recipient’s public key and also signing it under the user’s own private key [BONUS] */
     private static void encryptFileUnderPublicKeyPrivateKey() {
         System.out.println("\nm -> Offer the possibility of encrypting a file under the recipient's public key and also signing it under the user's own private key [BONUS]");
-        String input = scan.nextLine();
         System.out.println("Not implemented yet: Exiting program now");
     }
 }

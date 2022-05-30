@@ -3,8 +3,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,7 +30,11 @@ public class Main {
     /** Scanner object for reading user input */
     private static final Scanner scan = new Scanner(System.in);
 
-    private static final String doAnotherReturnQuitRegex = "[rqx]";
+    /** Input directory path */
+    private static final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
+
+    /** Output directory path */
+    private static final String outputDirectory = System.getProperty("user.dir") + "/files/output/";
 
     /** Main method for the console I/O */
     public static void main(String[] args) {
@@ -53,7 +57,7 @@ public class Main {
                 case "elliptic" -> afterResult("elliptic");
             }
             
-            input = scan.nextLine();
+            input = scan.nextLine().toLowerCase().trim();
         }
         return input;
     }
@@ -62,7 +66,7 @@ public class Main {
     private static void mainMenu() {
         final String mainMenuRegex = "[1-2q]";
         mainMenuOptions();
-        final String input = scan.nextLine();
+        final String input = scan.nextLine().toLowerCase().trim();
         String choice = validateInput(input, mainMenuRegex, "MainMenu");
         switch (choice) {
             case "1" -> symmetricMenu(input, choice);
@@ -168,8 +172,10 @@ public class Main {
     private static void buffer(final String menu, final String again) {
         afterResult(menu);
 
+        final String goAgainReturnQuitRegex = "[rqx]";
+
         final String input = scan.nextLine();
-        String choice = validateInput(input, doAnotherReturnQuitRegex, menu);
+        String choice = validateInput(input, goAgainReturnQuitRegex, menu);
 
         if (choice.equals("q")) {
             System.exit(0);
@@ -205,13 +211,12 @@ public class Main {
     private static void cryptoHashFromFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to cryptographically hash:");
-        String fileName = scan.nextLine().trim();
+        String inputFileName = scan.nextLine().trim();
 
-        final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
         List<String> listOfHashes = new ArrayList<>();
 
         try {
-            File file = new File(inputDirectory + fileName);
+            File file = new File(inputDirectory + inputFileName);
             Scanner fileReader = new Scanner(file);
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
@@ -257,14 +262,13 @@ public class Main {
         System.out.println("Enter a file to encrypt under a passphrase:");
         String inputFileName = scan.nextLine().trim();
 
-        final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
         List<String> listOfEncryptions = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + inputFileName);
             Scanner fileReader = new Scanner(file);
             System.out.println("Enter a passphrase:");
-            String passphrase = scan.nextLine().trim();
+            String passphrase = scan.nextLine();
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 byte[] m = line.getBytes();
@@ -279,25 +283,23 @@ public class Main {
             encryptUnderPassphrase();
         }
 
-        final String outputDirectory = System.getProperty("user.dir") + "/files/output/";
-
         System.out.println("Enter a file output name:");
         String outputFileName = scan.nextLine().trim();
 
         try {
-            File file = new File(outputDirectory + outputFileName + ".txt");
+            File file = new File(outputDirectory + outputFileName + "SymmetricEncrypt" + ".txt");
             while (!file.createNewFile()) {
                 System.out.println("File name already exists");
                 System.out.println("Enter another file output name:");
                 outputFileName = scan.nextLine().trim();
-                file = new File(outputDirectory + outputFileName + ".txt");
+                file = new File(outputDirectory + outputFileName + "SymmetricEncrypt" + ".txt");
             }
             FileWriter writer = new FileWriter(outputDirectory + file.getName());
-            BufferedWriter br = new BufferedWriter(writer);
+            BufferedWriter bw = new BufferedWriter(writer);
             for (String encryption : listOfEncryptions) {
-                br.write(encryption + "\n");
+                bw.write(encryption + "\n");
             }
-            br.close();
+            bw.close();
         }
         catch (IOException e) {
             System.out.println("An IOException occurred");
@@ -312,14 +314,13 @@ public class Main {
         System.out.println("Enter a file to decrypt under a passphrase:");
         String inputFileName = scan.nextLine().trim();
 
-        final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
         List<String> listOfDecryptions = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + inputFileName);
             Scanner fileReader = new Scanner(file);
             System.out.println("Enter a passphrase:");
-            String passphrase = scan.nextLine().trim();
+            String passphrase = scan.nextLine();
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 byte[] m = Symmetric.hexStringToByte(line);
@@ -334,25 +335,23 @@ public class Main {
             decryptUnderPassphrase();
         }
 
-        final String outputDirectory = System.getProperty("user.dir") + "/files/output/";
-
         System.out.println("Enter a file output name:");
         String outputFileName = scan.nextLine().trim();
 
         try {
-            File file = new File(outputDirectory + outputFileName + ".txt");
+            File file = new File(outputDirectory + outputFileName + "SymmetricDecrypt" + ".txt");
             while (!file.createNewFile()) {
                 System.out.println("File name already exists");
                 System.out.println("Enter another file output name:");
                 outputFileName = scan.nextLine().trim();
-                file = new File(outputDirectory + outputFileName + ".txt");
+                file = new File(outputDirectory + outputFileName + "SymmetricDecrypt" + ".txt");
             }
             FileWriter writer = new FileWriter(outputDirectory + file.getName());
-            BufferedWriter br = new BufferedWriter(writer);
+            BufferedWriter bw = new BufferedWriter(writer);
             for (String decryption : listOfDecryptions) {
-                br.write(decryption + "\n");
+                bw.write(decryption + "\n");
             }
-            br.close();
+            bw.close();
         }
         catch (IOException e) {
             System.out.println("An IOException occured");
@@ -367,14 +366,13 @@ public class Main {
         System.out.println("Enter a file to compute an authentication tag (MAC):");
         String fileName = scan.nextLine().trim();
 
-        final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
         List<String> listOfAuthTags = new ArrayList<>();
 
         try {
             File file = new File(inputDirectory + fileName);
             Scanner fileReader = new Scanner(file);
             System.out.println("Enter a passphrase:");
-            String passphrase = scan.nextLine().trim();
+            String passphrase = scan.nextLine();
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
                 byte[] m = line.getBytes();
@@ -401,44 +399,292 @@ public class Main {
 
     /** f -> Generate an elliptic key pair from a given passphrase and write the public key to a file */
     private static void generateKeyPairUnderPassphraseToFile() {
-        System.out.println("\nf -> Generate an elliptic key pair from a given passphrase and write the public key to a file");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a passphrase for the generated elliptic key pair public key:");
+        String passphrase = scan.nextLine();
+
+        byte[] pw = passphrase.getBytes();
+        ECKey keyPair = new ECKey(pw);
+
+        System.out.println("Enter a file output name:");
+        String outputFileName = scan.nextLine().trim();
+
+        try {
+            File file = new File(outputDirectory + outputFileName + "PublicKey" + ".txt");
+            while (!file.createNewFile()) {
+                System.out.println("File name already exists");
+                System.out.println("Enter another file output name:");
+                outputFileName = scan.nextLine().trim();
+                file = new File(outputDirectory + outputFileName + "PublicKey" + ".txt");
+            }
+            FileWriter writer = new FileWriter(outputDirectory + file.getName());
+            BufferedWriter bw = new BufferedWriter(writer);
+            final String publicKey = Symmetric.byteToHexString(keyPair.getPublicKey().getBytes());
+            bw.write(publicKey + "\n");
+            bw.close();
+        }
+        catch (IOException e) {
+            System.out.println("An IOException occured");
+        }
+
+        buffer("elliptic", "f");
     }
 
     /** g -> Encrypt the private key under the given password and write it to a file [BONUS] */
     private static void encryptUnderPasswordToFile() {
-        System.out.println("\ng -> Encrypt the private key under the given password and write it to a file [BONUS]");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a passphrase for the generated elliptic key pair private key:");
+        String passphrase = scan.nextLine();
+
+        byte[] pw = passphrase.getBytes();
+        ECKey keyPair = new ECKey(pw);
+        BigInteger privateKey = keyPair.getS_Scalar();
+        ECKey encryptedPrivateKey = new ECKey(privateKey);
+
+        System.out.println("Enter a file output name:");
+        String outputFileName = scan.nextLine().trim();
+
+        try {
+            File file = new File(outputDirectory + outputFileName + "PrivateKey" + ".txt");
+            while (!file.createNewFile()) {
+                System.out.println("File name already exists");
+                System.out.println("Enter another file output name:");
+                outputFileName = scan.nextLine().trim();
+                file = new File(outputDirectory + outputFileName + "PrivateKey" + ".txt");
+            }
+            FileWriter writer = new FileWriter(outputDirectory + file.getName());
+            BufferedWriter bw = new BufferedWriter(writer);
+            final String encryptedPrivateKeyHex = encryptedPrivateKey.getS_Scalar().toString(16).toUpperCase();
+            bw.write(encryptedPrivateKeyHex + "\n");
+            bw.close();
+        }
+        catch (IOException e) {
+            System.out.println("An IOException occured");
+        }
+
+        buffer("elliptic", "g");
     }
 
     /** h -> Encrypt a data file under a given elliptic public key file */
     private static void encryptUnderPublicKeyFile() {
-        System.out.println("\nh -> Encrypt a data file under a given elliptic public key file");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a file to encrypt under a given elliptic public key file:");
+        String inputFileName = scan.nextLine().trim();
+        
+        List<String> listOfEncryptions = new ArrayList<>();
+
+        try {
+            File file = new File(inputDirectory + inputFileName);
+            Scanner fileReader = new Scanner(file);
+            System.out.println("Enter a public key file:");
+            String publicKeyFileName = scan.nextLine().trim();
+            File keyFile = new File(inputDirectory + publicKeyFileName);
+            while (!keyFile.exists()) {
+                System.out.println("File not found, try again");
+                System.out.println("------------------------------------------------");
+                System.out.println("Enter a public key file:");
+                publicKeyFileName = scan.nextLine().trim();
+                keyFile = new File(inputDirectory + publicKeyFileName);
+            }
+
+            E521 publicKey = null;
+
+            Scanner keyReader = new Scanner(keyFile);
+            while (keyReader.hasNextLine()) {
+                String publicKeyHex = keyReader.nextLine();
+                byte[] publicKeyBytes = Symmetric.hexStringToByte(publicKeyHex);
+                publicKey = E521.createFromBytes(publicKeyBytes);
+            }
+            keyReader.close();
+
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine();
+                byte[] m = line.getBytes();
+                byte[] encryption = CryptEC.encrypt(m, publicKey);
+                final String encryptionHex = Symmetric.byteToHexString(encryption);
+                listOfEncryptions.add(encryptionHex);
+            }
+            fileReader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found, try again");
+            encryptUnderPublicKeyFile();
+        }
+
+        System.out.println("Enter a file output name:");
+        String outputFileName = scan.nextLine().trim();
+
+        try {
+            File file = new File(outputDirectory + outputFileName + "EllipticEncrypt" + ".txt");
+            while (!file.createNewFile()) {
+                System.out.println("File name already exists");
+                System.out.println("Enter another file output name:");
+                outputFileName = scan.nextLine().trim();
+                file = new File(outputDirectory + outputFileName + "EllipticEncrypt" + ".txt");
+            }
+            FileWriter writer = new FileWriter(outputDirectory + file.getName());
+            BufferedWriter bw = new BufferedWriter(writer);
+            for (String encryption : listOfEncryptions) {
+                bw.write(encryption + "\n");
+            }
+            bw.close();
+        }
+        catch (IOException e) {
+            System.out.println("An IOException occured");
+        }
+
+        buffer("elliptic", "h");
     }
 
     /** i -> Decrypt a given elliptic-encrypted file from a given password */
     private static void decryptUnderEncryptedFileFromPassword() {
-        System.out.println("\ni -> Decrypt a given elliptic-encrypted file from a given password");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a file to decrypt under a given passphrase:");
+        String inputFileName = scan.nextLine().trim();
+
+        List<String> listOfDecryptions = new ArrayList<>();
+
+        try {
+            File file = new File(inputDirectory + inputFileName);
+            Scanner fileReader = new Scanner(file);
+            System.out.println("Enter a passphrase:");
+            String passphrase = scan.nextLine();
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine();
+                byte[] zct = Symmetric.hexStringToByte(line);
+                byte[] decryption = CryptEC.decrypt(zct, passphrase);
+                final String decryptionString = Symmetric.byteArrayToString(decryption);
+                listOfDecryptions.add(decryptionString);
+            }
+            fileReader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found, try again");
+            decryptUnderEncryptedFileFromPassword();
+        }
+
+        System.out.println("Enter a file output name:");
+        String outputFileName = scan.nextLine().trim();
+
+        try {
+            File file = new File(outputDirectory + outputFileName + "EllipticDecrypt" + ".txt");
+            while (!file.createNewFile()) {
+                System.out.println("File name already exists");
+                System.out.println("Enter another file output name:");
+                outputFileName = scan.nextLine().trim();
+                file = new File(outputDirectory + outputFileName + "EllipticDecrypt" + ".txt");
+            }
+            FileWriter writer = new FileWriter(outputDirectory + file.getName());
+            BufferedWriter bw = new BufferedWriter(writer);
+            for (String decryption : listOfDecryptions) {
+                bw.write(decryption + "\n");
+            }
+            bw.close();
+        }
+        catch (IOException e) {
+            System.out.println("An IOException occured");
+        }
+
+        buffer("elliptic", "i");
     }
 
     /** j -> Encrypt/decrypt text input [BONUS] */
     private static void encryptDecryptInput() {
-        System.out.println("\nj -> Encrypt/decrypt text input [BONUS]");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        final String encryptDecryptRegex = "[ed]";
+
+        String choice;
+        do {
+            System.out.println("------------------------------------------------");
+            System.out.println("e -> Encrypt text input");
+            System.out.println("d -> Decrypt text input");
+            System.out.println("------------------------------------------------");
+            System.out.print("-> ");
+            choice = scan.nextLine().trim().toLowerCase();
+            if (!choice.matches(encryptDecryptRegex)) {
+                System.out.println("Invalid option, please try again");
+            }
+        }
+        while (!choice.matches(encryptDecryptRegex));
+
+        if (choice.equals("e")) { // Encrypt
+            System.out.println("------------------------------------------------");
+            System.out.println("Enter a message to encrypt:");
+            final String message = scan.nextLine();
+            byte[] m = message.getBytes();
+            System.out.println("Enter the public key hex (without the 0x):");
+            final String publicKeyHex = scan.nextLine().trim().toUpperCase();
+            byte[] publicKeyBytes = Symmetric.hexStringToByte(publicKeyHex);
+            E521 publicKey = E521.createFromBytes(publicKeyBytes);
+            byte[] encryption = CryptEC.encrypt(m, publicKey);
+            final String encryptionHex = Symmetric.byteToHexString(encryption);
+            System.out.println("\nResult:");
+            System.out.println(encryptionHex);
+        }
+        else { // Decrypt
+            System.out.println("------------------------------------------------");
+            System.out.println("Enter a message to decrypt:");
+            final String message = scan.nextLine();
+            byte[] zct = Symmetric.hexStringToByte(message);
+            System.out.println("Enter the passphrase:");
+            final String passphrase = scan.nextLine();
+            byte[] decryption = CryptEC.decrypt(zct, passphrase);
+            final String decryptionString = Symmetric.byteArrayToString(decryption);
+            System.out.println("\nResult:");
+            System.out.println(decryptionString);
+        }
+
+        buffer("elliptic", "j");
     }
 
     /** k -> Sign a given file from a given password and write the signature to a file */
     private static void signFileFromPasswordToFile() {
-        System.out.println("\nk -> Sign a given file from a given password and write the signature to a file");
-        String input = scan.nextLine();
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a file to sign:");
+        String inputFileName = scan.nextLine().trim();
+
+        List<BigInteger[]> listOfSignatures = new ArrayList<>();
+
+        try {
+            File file = new File(inputDirectory + inputFileName);
+            Scanner fileReader = new Scanner(file);
+            System.out.println("Enter a passphrase:");
+            String passphrase = scan.nextLine();
+            while (fileReader.hasNextLine()) {
+                String line = fileReader.nextLine();
+                byte[] m = line.getBytes();
+                BigInteger[] signature = Signature.generateSignature(m, passphrase);
+                listOfSignatures.add(signature);
+            }
+            fileReader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found, try again");
+            signFileFromPasswordToFile();
+        }
+
+        System.out.println("Enter a file output name:");
+        String outputFileName = scan.nextLine().trim();
+
+        try {
+            File file = new File(outputDirectory + outputFileName + "Signature" + ".txt");
+            while (!file.createNewFile()) {
+                System.out.println("File name already exists");
+                System.out.println("Enter another file output name:");
+                outputFileName = scan.nextLine().trim();
+                file = new File(outputDirectory + outputFileName + "Signature" + ".txt");
+            }
+            FileWriter writer = new FileWriter(outputDirectory + file.getName());
+            BufferedWriter bw = new BufferedWriter(writer);
+            for (BigInteger[] signature : listOfSignatures) {
+                bw.write(signature[0] + " " + signature[1] + "\n");
+            }
+            bw.close();
+        }
+        catch (IOException e) {
+            System.out.println("An IOException occured");
+        }
+
+        buffer("elliptic", "k");
     }
 
     /** l -> Verify a given data file and its signature file under a given public key file */
@@ -453,33 +699,5 @@ public class Main {
         System.out.println("\nm -> Offer the possibility of encrypting a file under the recipient's public key and also signing it under the user's own private key [BONUS]");
         String input = scan.nextLine();
         System.out.println("Not implemented yet: Exiting program now");
-    }
-
-    /**
-     * Get the output directory, which is the same directory as the input file.
-     * The output file will have "-output" added to the name.
-     *
-     * @param fileDirectory The directory of the input file
-     * @return The directory of the output file
-     */
-    public static String getOutputDirectory(String fileDirectory) {
-        if (fileDirectory.isEmpty()) return null;
-
-        String outputDir = "", fileName;
-        try {
-            // Making this process file directory correctly for both Windows and Linux
-            if (fileDirectory.lastIndexOf("/") < 0 && fileDirectory.lastIndexOf("\\") < 0) {
-                fileName = fileDirectory.substring(0, fileDirectory.lastIndexOf(".txt"));
-                System.out.println(fileName);
-                outputDir = fileName + "-output.txt";
-            } else {
-                fileName = fileDirectory.substring(2 + fileDirectory.lastIndexOf("/") + fileDirectory.lastIndexOf("\\"), fileDirectory.lastIndexOf(".txt"));
-                int slashIndex = fileDirectory.lastIndexOf("/") > 0 ? fileDirectory.lastIndexOf("/") + 1 : fileDirectory.lastIndexOf("\\") + 1;
-                outputDir = fileDirectory.substring(0, slashIndex) + fileName + "-output.txt";
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid directory: " + e.getMessage());
-        }
-        return outputDir;
     }
 }

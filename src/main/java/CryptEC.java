@@ -29,7 +29,7 @@ public class CryptEC {
         byte[] ka = Arrays.copyOfRange(keyGen, 64, 128);
 
         //  c <- KMACXOF256(ke, “”, |m|, “PKE”) xor m
-        byte[] toXor = Symmetric.KMACXOF256(Symmetric.byteArrayToString(ke), new byte[]{}, m.length, "PKE");
+        byte[] toXor = Symmetric.KMACXOF256(Symmetric.byteArrayToString(ke), new byte[]{}, m.length * 8, "PKE");
         byte[] c = Symmetric.xorBytes(toXor, m);
 
         //  t <- KMACXOF256(ka, m, 512, “PKA”)

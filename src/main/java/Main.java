@@ -433,7 +433,7 @@ public class Main {
     /** g -> Encrypt the private key under the given password and write it to a file [BONUS] */
     private static void encryptUnderPasswordToFile() {
         System.out.println("------------------------------------------------");
-        System.out.println("Enter a passphrase for the generated elliptic key pair private key:");
+        System.out.println("Enter a passphrase to encrypt the generated elliptic key pair private key:");
         String passphrase = scan.nextLine();
 
         byte[] pw = passphrase.getBytes();

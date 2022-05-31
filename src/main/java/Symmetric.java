@@ -9,6 +9,10 @@ import java.util.stream.Stream;
  * for left_encode, right_encode, encode_string, bytepad
  */
 
+ /**
+  * Part 1: Symmetric Cryptography
+  * @author Daniel Jiang
+  */
 public class Symmetric {
 
     /**

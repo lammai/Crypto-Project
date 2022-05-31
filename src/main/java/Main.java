@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Console program for the project
+ * @author Daniel Jiang
+ */
 public class Main {
 
     // Symmetric Cryptography [a-e]

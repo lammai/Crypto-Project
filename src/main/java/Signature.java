@@ -51,7 +51,7 @@ public class Signature {
      * @param V
      * @return
      */
-    public static E521 verifySignature(BigInteger[] hz, byte[] m, E521 V) {
+    public static boolean verifySignature(BigInteger[] hz, byte[] m, E521 V) {
         BigInteger h = hz[0];
         BigInteger z = hz[1];
 
@@ -61,7 +61,7 @@ public class Signature {
         // accept if, and only if, KMACXOF256(Ux, m, 512, “T”) = h
         byte[] tempH = Symmetric.KMACXOF256(Symmetric.byteArrayToString(U.getX().toByteArray()), m, 512, "T");
 
-        return (Arrays.equals(tempH, h.toByteArray())) ? U : null;
+        return Arrays.equals(tempH, h.toByteArray());
     }
 
     /** Returns h

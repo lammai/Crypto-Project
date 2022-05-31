@@ -689,13 +689,96 @@ public class Main {
 
     /** l -> Verify a given data file and its signature file under a given public key file */
     private static void verifyUnderPublicKeyFile() {
-        System.out.println("\nl -> Verify a given data file and its signature file under a given public key file");
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("------------------------------------------------");
+        System.out.println("Enter a data file:");
+        String dataFileName = scan.nextLine().trim();
+
+        List<String> listOfData = new ArrayList<>();
+        List<BigInteger[]> listOfSignatures = new ArrayList<>();
+        E521 publicKey = null;
+
+        try {
+            File dataFile = new File(inputDirectory + dataFileName);
+            Scanner dataFileReader = new Scanner(dataFile);
+            while (dataFileReader.hasNextLine()) {
+                String dataLine = dataFileReader.nextLine();
+                listOfData.add(dataLine);
+            }
+
+            System.out.println("Enter a signature file:");
+            String signatureFileName = scan.nextLine().trim();
+            File signatureFile = new File(inputDirectory + signatureFileName);
+            while (!signatureFile.exists()) {
+                System.out.println("File not found, try again");
+                System.out.println("------------------------------------------------");
+                System.out.println("Enter a signature file:");
+                signatureFileName = scan.nextLine().trim();
+                signatureFile = new File(inputDirectory + signatureFileName);
+            }
+
+            Scanner signatureFileReader = new Scanner(signatureFile);
+            while (signatureFileReader.hasNextLine()) {
+                String signatureLine = signatureFileReader.nextLine();
+                String[] hzString = signatureLine.split(" ");
+                BigInteger h = new BigInteger(hzString[0]);
+                BigInteger z = new BigInteger(hzString[1]);
+                BigInteger[] hz = new BigInteger[]{h, z};
+                listOfSignatures.add(hz);
+            }
+
+            System.out.println("Enter a public key file:");
+            String publicKeyFileName = scan.nextLine().trim();
+            File publicKeyFile = new File(inputDirectory + publicKeyFileName);
+            while (!publicKeyFile.exists()) {
+                System.out.println("File not found, try again");
+                System.out.println("------------------------------------------------");
+                System.out.println("Enter a public key file:");
+                publicKeyFileName = scan.nextLine().trim();
+                publicKeyFile = new File(inputDirectory + publicKeyFileName);
+            }
+
+            Scanner publicKeyFileReader = new Scanner(publicKeyFile);
+            while (publicKeyFileReader.hasNextLine()) {
+                String publicKeyHex = publicKeyFileReader.nextLine();
+                byte[] publicKeyBytes = Symmetric.hexStringToByte(publicKeyHex);
+                publicKey = E521.createFromBytes(publicKeyBytes);
+            }
+
+            boolean isAllVerified = true;
+
+            for (int i = 0; i < listOfData.size(); i++) {
+                byte[] m = listOfData.get(i).getBytes();
+                BigInteger[] hz = listOfSignatures.get(i);
+                boolean isVerified = Signature.verifySignature(hz, m, publicKey);
+                if (!isVerified) {
+                    isAllVerified = false;
+                    break;
+                }
+            }
+
+            if (isAllVerified) {
+                System.out.println("This is verified");
+            }
+            else {
+                System.out.println("This is NOT verified");
+            }
+
+            publicKeyFileReader.close();
+            signatureFileReader.close();
+            dataFileReader.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found, try again");
+            verifyUnderPublicKeyFile();
+        }
+
+        buffer("elliptic", "l");
     }
 
     /** m -> Offer the possibility of encrypting a file under the recipient’s public key and also signing it under the user’s own private key [BONUS] */
     private static void encryptFileUnderPublicKeyPrivateKey() {
-        System.out.println("\nm -> Offer the possibility of encrypting a file under the recipient's public key and also signing it under the user's own private key [BONUS]");
-        System.out.println("Not implemented yet: Exiting program now");
+        System.out.println("This feature has not been implemented yet");
+
+        buffer("elliptic", "m");
     }
 }

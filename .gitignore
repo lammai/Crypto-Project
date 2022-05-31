@@ -8,3 +8,5 @@
 .idea/dataSources/
 .idea/dataSources.local.xml
 .idea/discord.xml
+
+*.class

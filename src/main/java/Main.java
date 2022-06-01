@@ -428,7 +428,7 @@ public class Main {
             bw.close();
         }
         catch (IOException e) {
-            System.out.println("An IOException occured");
+            System.out.println("An IOException occurred" + e.toString());
         }
 
         buffer("elliptic", "f");

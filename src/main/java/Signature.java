@@ -35,7 +35,8 @@ public class Signature {
         byte[] tempH = Symmetric.KMACXOF256(Symmetric.byteArrayToString(U.getX().toByteArray()), m, 512, "T");
         byte[] hArr = new byte[65];
         System.arraycopy(tempH, 0, hArr, 1, tempH.length);
-        BigInteger h = new BigInteger(hArr).multiply(BigInteger.valueOf(4L));
+        BigInteger h = new BigInteger(hArr);
+//        BigInteger h = new BigInteger(hArr).multiply(BigInteger.valueOf(4L));
 
         BigInteger z = k.subtract(h.multiply(s)).mod(E521.R);
 
@@ -60,8 +61,11 @@ public class Signature {
 
         // accept if, and only if, KMACXOF256(Ux, m, 512, “T”) = h
         byte[] tempH = Symmetric.KMACXOF256(Symmetric.byteArrayToString(U.getX().toByteArray()), m, 512, "T");
+        byte[] hArr = new byte[65];
+        System.arraycopy(tempH, 0, hArr, 1, tempH.length);
+        BigInteger myH = new BigInteger(hArr);
 
-        return Arrays.equals(tempH, h.toByteArray());
+        return myH.equals(h);
     }
 
     /** Returns h

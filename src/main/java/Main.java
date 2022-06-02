@@ -32,16 +32,25 @@ public class Main {
     // l -> Verify a given data file and its signature file under a given public key file
     // m -> Offer the possibility of encrypting a file under the recipient's public key and also signing it under the user's own private key [BONUS]
 
-    /** Scanner object for reading user input */
+    /**
+     * Scanner object for reading user input
+     */
     private static final Scanner scan = new Scanner(System.in);
 
-    /** Input directory path */
+    /**
+     * Input directory path
+     */
     private static final String inputDirectory = System.getProperty("user.dir") + "/files/input/";
 
-    /** Output directory path */
+    /**
+     * Output directory path
+     */
     private static final String outputDirectory = System.getProperty("user.dir") + "/files/output/";
 
-    /** Main method for the console I/O */
+    /**
+     * Main method for the console I/O
+     * @param args String arguments
+     */
     public static void main(String[] args) {
         System.out.println("------------------------------------------------");
         System.out.println("    TCSS 487 - Cryptographic Utility Library");
@@ -49,7 +58,13 @@ public class Main {
         mainMenu();
     }
 
-    /** Validates user input */
+    /**
+     * Validates user input
+     * @param input The input from the user 
+     * @param regex The specific regex of the input
+     * @param menu Which menu for the console output to print
+     * @return The validated input from the user
+     */
     private static String validateInput(String input, final String regex, final String menu) {
         input = input.toLowerCase().trim();
         while (!input.matches(regex)) {
@@ -67,7 +82,9 @@ public class Main {
         return input;
     }
 
-    /** Main menu */
+    /**
+     * Main menu
+     */
     private static void mainMenu() {
         final String mainMenuRegex = "[1-2q]";
         mainMenuOptions();
@@ -80,7 +97,9 @@ public class Main {
         }
     }
 
-    /** Main menu options */
+    /**
+     * Main menu options
+     */
     private static void mainMenuOptions() {
         System.out.println("------------------------------------------------");
         System.out.println("Main Menu: Select an option");
@@ -91,7 +110,9 @@ public class Main {
         System.out.print("-> ");
     }
 
-    /** Symmetric cryptography menu */
+    /**
+     * Symmetric cryptography menu
+     */
     private static void symmetricMenu(String input, String choice) {
         final String symmetricMenuRegex = "[a-erq]";
         symmetricMenuOptions();
@@ -108,7 +129,9 @@ public class Main {
         }
     }
 
-    /** Symmetric cryptography menu options */
+    /**
+     * Symmetric cryptography menu options
+     */
     private static void symmetricMenuOptions() {
         System.out.println("------------------------------------------------");
         System.out.println("Symmetric Cryptography Menu: Select an option");
@@ -120,7 +143,9 @@ public class Main {
         returnOrQuit();
     }
 
-    /** Elliptic curve arithmetic menu */
+    /**
+     * Elliptic curve arithmetic menu
+     */
     private static void ellipticMenu(String input, String choice) {
         final String ellipticMenuRegex = "[f-mrq]";
         ellipticMenuOptions();
@@ -140,7 +165,9 @@ public class Main {
         }
     }
 
-    /** Elliptic curve arithmetic menu options */
+    /**
+     * Elliptic curve arithmetic menu options
+     */
     private static void ellipticMenuOptions() {
         System.out.println("------------------------------------------------");
         System.out.println("Elliptic Curve Arithmetic Menu: Select an option");
@@ -155,7 +182,9 @@ public class Main {
         returnOrQuit();
     }
 
-    /** Return or quit dialog */
+    /**
+     * Return or quit dialog
+     */
     private static void returnOrQuit() {
         System.out.println("r -> Return to the main menu");
         System.out.println("q -> Quit");
@@ -163,7 +192,10 @@ public class Main {
         System.out.print("-> ");
     }
 
-    /** Go again, return, or quit dialog */
+    /**
+     * Go again, return, or quit dialog
+     * @param menu The menu to print out again
+     */
     private static void afterResult(String menu) {
         System.out.println("------------------------------------------------");
         System.out.println("x -> Go again");
@@ -173,7 +205,11 @@ public class Main {
         System.out.print("-> ");
     }
 
-    /** Buffer for the user after the results of a computation */
+    /**
+     * Buffer for the user after the results of a computation
+     * @param menu The menu to return to
+     * @param again The method to return to for another computation
+     */
     private static void buffer(final String menu, final String again) {
         afterResult(menu);
 
@@ -212,7 +248,9 @@ public class Main {
 
     // ---------------------------- SYMMETRIC CRYPTOGRAHPY -------------------------------------
 
-    /** a -> Compute a plain cryptographic hash of a given file */
+    /**
+     * a -> Compute a plain cryptographic hash of a given file [10 pts]
+     */
     private static void cryptoHashFromFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to cryptographically hash:");
@@ -245,7 +283,9 @@ public class Main {
         buffer("symmetric", "a");
     }
 
-    /** b -> Compute a plain cryptographic hash of text input [BONUS] */
+    /**
+     * b -> Compute a plain cryptographic hash of text input [BONUS] [4pts]
+     */
     private static void cryptoHashFromInput() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a message to cryptographically hash:");
@@ -261,7 +301,9 @@ public class Main {
         buffer("symmetric", "b");
     }
 
-    /** c -> Encrypt a given data file symmetrically under a given passphrase */
+    /**
+     * c -> Encrypt a given data file symmetrically under a given passphrase [10 pts]
+     */
     private static void encryptUnderPassphrase() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to encrypt under a passphrase:");
@@ -313,7 +355,9 @@ public class Main {
         buffer("symmetric", "c");
     }
 
-    /** d -> Decrypt a given symmetric cryptogram under a given passphrase */
+    /**
+     * d -> Decrypt a given symmetric cryptogram under a given passphrase [10 pts]
+     */
     private static void decryptUnderPassphrase() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to decrypt under a passphrase:");
@@ -365,7 +409,9 @@ public class Main {
         buffer("symmetric", "d");
     }
 
-    /** e -> Compute an authentication tag (MAC) of a given file under a given passphrase [BONUS] */
+    /**
+     * e -> Compute an authentication tag (MAC) of a given file under a given passphrase [BONUS] [4 pts]
+     */
     private static void computeMACFromFileUnderPassphrase() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to compute an authentication tag (MAC):");
@@ -402,7 +448,9 @@ public class Main {
 
     // ---------------------------- ELLIPTIC CURVE ARITHMETIC ----------------------------------
 
-    /** f -> Generate an elliptic key pair from a given passphrase and write the public key to a file */
+    /**
+     * f -> Generate an elliptic key pair from a given passphrase and write the public key to a file [10 pts]
+     */
     private static void generateKeyPairUnderPassphraseToFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a passphrase for the generated elliptic key pair public key:");
@@ -435,7 +483,9 @@ public class Main {
         buffer("elliptic", "f");
     }
 
-    /** g -> Encrypt the private key under the given password and write it to a file [BONUS] */
+    /**
+     * g -> Encrypt the private key under the given password and write it to a file [BONUS] [4 pts]
+     */
     private static void encryptUnderPasswordToFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a passphrase to encrypt the generated elliptic key pair private key:");
@@ -470,7 +520,9 @@ public class Main {
         buffer("elliptic", "g");
     }
 
-    /** h -> Encrypt a data file under a given elliptic public key file */
+    /**
+     * h -> Encrypt a data file under a given elliptic public key file [10 pts]
+     */
     private static void encryptUnderPublicKeyFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to encrypt under a given elliptic public key file:");
@@ -541,7 +593,9 @@ public class Main {
         buffer("elliptic", "h");
     }
 
-    /** i -> Decrypt a given elliptic-encrypted file from a given password */
+    /**
+     * i -> Decrypt a given elliptic-encrypted file from a given password [10 pts]
+     */
     private static void decryptUnderEncryptedFileFromPassword() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to decrypt under a given passphrase:");
@@ -593,7 +647,9 @@ public class Main {
         buffer("elliptic", "i");
     }
 
-    /** j -> Encrypt/decrypt text input [BONUS] */
+    /**
+     * j -> Encrypt/decrypt text input [BONUS] [4 pts]
+     */
     private static void encryptDecryptInput() {
         final String encryptDecryptRegex = "[ed]";
 
@@ -641,7 +697,9 @@ public class Main {
         buffer("elliptic", "j");
     }
 
-    /** k -> Sign a given file from a given password and write the signature to a file */
+    /**
+     * k -> Sign a given file from a given password and write the signature to a file [10 pts]
+     */
     private static void signFileFromPasswordToFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a file to sign:");
@@ -692,7 +750,9 @@ public class Main {
         buffer("elliptic", "k");
     }
 
-    /** l -> Verify a given data file and its signature file under a given public key file */
+    /**
+     * l -> Verify a given data file and its signature file under a given public key file [10 pts]
+     */
     private static void verifyUnderPublicKeyFile() {
         System.out.println("------------------------------------------------");
         System.out.println("Enter a data file:");
@@ -780,7 +840,9 @@ public class Main {
         buffer("elliptic", "l");
     }
 
-    /** m -> Offer the possibility of encrypting a file under the recipient’s public key and also signing it under the user’s own private key [BONUS] */
+    /**
+     * m -> Offer the possibility of encrypting a file under the recipient’s public key and also signing it under the user’s own private key [BONUS] [4 pts]
+     */
     private static void encryptFileUnderPublicKeyPrivateKey() {
         System.out.println("This feature has not been implemented yet");
 

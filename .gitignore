@@ -10,3 +10,4 @@
 .idea/discord.xml
 
 *.class
+*.DS_Store

@@ -1,6 +1,11 @@
 import java.math.BigInteger;
 import java.util.Arrays;
 
+/**
+ * @author Daniel Jiang
+ * @author Lam Mai
+ * @author David Shcherbina
+ */
 public class Signature {
     /** Generating a signature for a byte array m under passphrase pw:
      *

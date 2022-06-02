@@ -1,16 +1,20 @@
 import java.math.BigInteger;
 import java.util.Arrays;
 
+/**
+ * The implementation of Elliptic Curve security level P-521
+ *
+ * (1) NIST Documentation: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-185.pdf
+ * (2) Elliptic Curve Slides (canvas): https://canvas.uw.edu/courses/1555586/files/91632405?wrap=1
+ * (3) https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
+ * (4) https://eprint.iacr.org/2013/647.pdf
+ * (5) https://fse.studenttheses.ub.rug.nl/10478/1/Marion_Dam_2012_WB_1.pdf
+ *
+ * @author Daniel Jiang
+ * @author Lam Mai
+ * @author David Shcherbina
+ */
 public class E521 {
-
-    /** Created for Keccak | E521 | Equation -> (x^2) + (y^2) = 1 + d(x^2)(y^2)
-     *
-     * (1) NIST Documentation: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-185.pdf
-     * (2) Elliptic Curve Slides (canvas): https://canvas.uw.edu/courses/1555586/files/91632405?wrap=1
-     * (3) https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc
-     * (4) https://eprint.iacr.org/2013/647.pdf
-     * (5) https://fse.studenttheses.ub.rug.nl/10478/1/Marion_Dam_2012_WB_1.pdf
-     */
 
     /** Elliptic X-Coordinate */
     private BigInteger X;
@@ -27,9 +31,9 @@ public class E521 {
     // --- Constructors ---
 
     /**
-     * Brah
-     * @param x
-     * @param lsb
+     * Create a point with BigInteger input
+     * @param x the x coordinate of the input point
+     * @param lsb the lease significant bit for y
      */
     public E521(BigInteger x, boolean lsb) {
         BigInteger upper = (BigInteger.ONE.subtract(x.pow(2))).mod(P); // 1 - x^2
@@ -43,8 +47,8 @@ public class E521 {
     }
 
     /**
-     * Brauhh
-     * @param point
+     * Create a point from another point
+     * @param point the other point
      */
     public E521(E521 point){
         this.X = point.getX();
@@ -52,6 +56,7 @@ public class E521 {
     }
 
     /**
+     * Create a point from the specified x and y coordinates
      *
      * @param x x-coordinate of Elliptic curve
      * @param y y-coordinate of Elliptic curve
@@ -62,9 +67,10 @@ public class E521 {
     }
 
     /**
+     * Create a point from the specified x and y coordinates of type integer
      *
-     * @param x
-     * @param y
+     * @param x x-coordinate of Elliptic curve
+     * @param y y-coordinate of Elliptic curve
      */
     public E521(int x, int y){
         this.X = new BigInteger(x + "");
@@ -72,9 +78,10 @@ public class E521 {
     }
 
     /**
+     * Create a point from the specified x and y coordinates of type string
      *
-     * @param x
-     * @param y
+     * @param x x-coordinate of Elliptic curve
+     * @param y y-coordinate of Elliptic curve
      */
     public E521(String x, String y){
         this.X = new BigInteger(x);
@@ -82,8 +89,9 @@ public class E521 {
     }
 
     /**
+     * Create a point from only the specified x coordinate
      *
-     * @param x
+     * @param x x-coordinate of Elliptic curve
      */
     public E521(BigInteger x) {
         this.X = x;
@@ -91,6 +99,7 @@ public class E521 {
     }
 
     /**
+     * Create a default point
      * Default Initialization Constructor, defined as (0,1).
      */
     public E521(){
@@ -145,7 +154,7 @@ public class E521 {
     public static E521 createFromBytes(byte[] input) {
         int bLen = P.toByteArray().length * 2;
         if (input.length != bLen)
-            throw new IllegalArgumentException("Invalid input byte array");
+            throw new IllegalArgumentException("Invalid input byte array. Input length: " + input.length + ". Expected length: " + bLen);
 
         BigInteger myX = new BigInteger(Arrays.copyOfRange(input, 0, bLen / 2 ));
         BigInteger myY = new BigInteger(Arrays.copyOfRange(input, bLen / 2, bLen ));

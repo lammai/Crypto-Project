@@ -12,13 +12,15 @@ import java.util.stream.Stream;
  /**
   * Part 1: Symmetric Cryptography
   * @author Daniel Jiang
+  * @author Lam Mai
+  * @author David Shcherbina
   */
 public class Symmetric {
 
     /**
      * Computing a cryptographic hash h of a byte array m:
-     * @param m
-     * @return
+     * @param m the input message
+     * @return the cryptographic hash
      */
     public static byte[] computeHash(byte[] m) {
         return KMACXOF256("", m, 512, "D");
@@ -26,9 +28,9 @@ public class Symmetric {
 
     /**
      * Compute an authentication tag t of a byte array m under passphrase pw:
-     * @param pw
-     * @param m
-     * @return
+     * @param pw the passphrase
+     * @param m the input message
+     * @return the authentication tag (MAC)
      */
     public static byte[] computeAuthTag(String pw, byte[] m) {
         return KMACXOF256(pw, m, 512, "T");
@@ -36,9 +38,9 @@ public class Symmetric {
 
     /**
      * Encrypting a byte array m symmetrically under passphrase pw:
-     * @param pw
-     * @param m
-     * @return
+     * @param pw the passphrase
+     * @param m the input message
+     * @return the encrypted message
      */
     public static byte[] symmetricEncrypt(String pw, byte[] m) {
         //z <- Random(512)
@@ -66,9 +68,9 @@ public class Symmetric {
 
     /**
      * Decrypting a symmetric cryptogram (z, c, t) under passphrase pw:
-     * @param pw
-     * @param zct
-     * @return
+     * @param pw the passphrase
+     * @param zct the encrypted message to decrypt
+     * @return the decrypted message
      */
     public static byte[] symmetricDecrypt(String pw, byte[] zct) {
         // Taking z, c, t apart
@@ -93,12 +95,32 @@ public class Symmetric {
         return Arrays.equals(t, tPrime) ? m : c;
     }
 
+     /**
+      * Implementation of KMACXOF256 based on specification described by NIST.SP.800-185
+      * Section 4.3.1
+      *
+      * @param key the key k
+      * @param authM the authenticated data m
+      * @param outBitLen the output bit length L
+      * @param divS the diversification string S
+      * @return the variable-length output
+      */
     public static byte[] KMACXOF256(String key, byte[] authM, int outBitLen, String divS) {
         byte[] newIn = byteConcat(bytepad(encode_string(key), 136), authM);
         newIn = byteConcat(newIn, right_encode(BigInteger.ZERO));
         return cSHAKE256(newIn, outBitLen, "KMAC", divS);
     }
 
+     /**
+      * Implementation of cSHAKE256 based on specification described by NIST.SP.800-185
+      * Section 3.3
+      *
+      * @param inX the main input bit string X
+      * @param lenL the requested output length in bits L
+      * @param funcN the function name bit string N
+      * @param customS the customization string S
+      * @return the output digest
+      */
     public static byte[] cSHAKE256(byte[] inX, int lenL, String funcN, String customS) {
         if (funcN.equals("") && customS.equals("")) return SHAKE256(inX, lenL);
 
@@ -109,6 +131,14 @@ public class Symmetric {
         return sponge(processIn, lenL, 512);
     }
 
+     /**
+      * Implementation of SHAKE256 based on specification described by NIST.FIPS.202
+      * Section 6.3
+      *
+      * @param in the message
+      * @param len the output length
+      * @return the output digest
+      */
     public static byte[] SHAKE256(byte[] in, int len) {
         byte[] newIn = Arrays.copyOf(in, in.length + 1);
         int bytesToPad = 136 - in.length % (136);

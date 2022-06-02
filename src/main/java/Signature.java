@@ -2,12 +2,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 public class Signature {
-
-    /** Is important var maybe.. */
-    private static BigInteger h;
-    /** Is important var maybee.. */
-    private static BigInteger z;
-
     /** Generating a signature for a byte array m under passphrase pw:
      *
      * @param m
@@ -66,21 +60,5 @@ public class Signature {
         BigInteger myH = new BigInteger(hArr);
 
         return myH.equals(h);
-    }
-
-    /** Returns h
-     *
-     * @return
-     */
-    public static BigInteger getH() {
-        return h;
-    }
-
-    /** Returns z
-     *
-     * @return
-     */
-    public static BigInteger getZ() {
-        return z;
     }
 }

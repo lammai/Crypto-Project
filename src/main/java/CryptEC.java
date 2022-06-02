@@ -2,6 +2,15 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+/**
+ * Elliptic Curve encryption/decryption
+ * Pseudocode to perform these functions are provided by
+ * Prof. Paulo Barreto in the TCSS 487 Cryptography course
+ *
+ * @author Daniel Jiang
+ * @author Lam Mai
+ * @author David Shcherbina
+ */
 public class CryptEC {
 
     public static byte[] encrypt(byte[] m, E521 V) {
